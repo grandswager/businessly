@@ -1,0 +1,171 @@
+/* --------- Explore Layout --------- */
+.explore-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.explore-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+/* --------- Explore Cards --------- */
+.explore-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+/* --------- Business Cards --------- */
+.business-card {
+    background: white;
+    border-radius: var(--radius-large);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.business-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+}
+
+.business-card img {
+    height: 160px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+.business-card img:hover {
+    transform: none;
+}
+
+/* Content */
+.business-content {
+    padding: 1.2rem 1.3rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.business-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+/* Description clamp */
+.business-desc {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Rating */
+.business-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+}
+
+.stars-display {
+    color: #fbbc04;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+
+.rating-value {
+    font-size: 0.85rem;
+    color: var(--secondary);
+}
+
+/* --------- Range Slider --------- */
+.range-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.range-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--secondary);
+}
+
+.range {
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--muted);
+    outline: none;
+}
+
+.range::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+}
+
+/* --------- Rating Stars --------- */
+.rating-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.stars input {
+    display: none;
+}
+
+.stars label {
+    font-size: 1.4rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: transform 0.15s, color 0.15s;
+}
+
+.stars label:hover,
+.stars label:hover ~ label {
+    color: #fbbc04;
+    transform: scale(1.1);
+}
+
+.stars input:checked ~ label {
+    color: #fbbc04;
+}
+
+/* --------- Responsive --------- */
+@media (max-width: 900px) {
+    .explore-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .explore-sidebar {
+        position: relative;
+        top: 0;
+    }
+}

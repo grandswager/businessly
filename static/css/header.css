@@ -1,0 +1,140 @@
+/* ---------------- Header ---------------- */
+
+.ui-header {
+    background: white;
+    width: 100%;
+    border-radius: var(--radius-large);
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-soft);
+    /* animation: slideDown 0.5s ease forwards; */
+    position: relative;
+    z-index: 10;
+}
+
+.header-inner {
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo */
+.logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    color: var(--primary);
+}
+
+/* Nav Links */
+.nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav a {
+    color: var(--secondary);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+    padding: 0.3rem;
+    border-radius: var(--radius);
+}
+
+.nav a:hover {
+    color: var(--primary);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.nav a.active {
+    color: #000000;
+    background: none;
+    text-shadow: 0 6px 18px rgba(0,0,0,0.45);;
+}
+
+.header-btn {
+    padding: 0.5rem 1rem;
+}
+
+/* Mobile Menu Toggle */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    width: 26px;
+    height: 3px;
+    background: var(--secondary);
+    border-radius: 5px;
+    transition: 0.2s;
+}
+
+/* ---------------- Navbar User ---------------- */
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-right: 0%;
+}
+
+.pfp {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pfp:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.username {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+}
+
+/* ---------------- Animations ---------------- */
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 780px) {
+
+    .nav {
+        position: absolute;
+        top: 94%;
+        right: 1.5rem;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-large);
+        box-shadow: var(--shadow-medium);
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        animation: var(--fade-in);
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+}
+
+/* Toggle active class with JS */
+.nav.active {
+    display: flex;
+}

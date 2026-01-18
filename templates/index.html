@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Businessly - Find Local Business Around Your Neighbourhood</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+</head>
+
+<body>
+    {% include "navbar.html" %}
+
+    <main class="explore-layout">
+        <!-- LEFT: Search & Filters -->
+        <section class="explore-sidebar">
+            <h2>Search</h2>
+
+            <form class="form" method="POST">
+                <!-- Search -->
+                <div class="field">
+                    <input type="text" placeholder=" " />
+                    <label>Search business</label>
+                </div>
+
+                <!-- Category -->
+                <div class="field">
+                    <select>
+                        <option value="" selected></option>
+                        <option>Restaurant</option>
+                        <option>Shop</option>
+                        <option>Service</option>
+                        <option>Health</option>
+                    </select>
+                    <label>Category</label>
+                </div>
+
+                <!-- Distance Slider -->
+                <div class="range-field">
+                    <label class="range-label">
+                        Distance
+                        <span id="distanceValue">5 km</span>
+                    </label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        value="5"
+                        class="range"
+                        oninput="distanceValue.textContent = this.value + ' km'"
+                    />
+                </div>
+
+                <!-- Rating -->
+                <div class="rating-filter">
+                    <span class="caption">Minimum rating</span>
+                    <div class="stars">
+                        <input type="radio" name="rating" id="r5"><label for="r5">★</label>
+                        <input type="radio" name="rating" id="r4"><label for="r4">★</label>
+                        <input type="radio" name="rating" id="r3"><label for="r3">★</label>
+                        <input type="radio" name="rating" id="r2"><label for="r2">★</label>
+                        <input type="radio" name="rating" id="r1"><label for="r1">★</label>
+                    </div>
+                </div>
+
+                <!-- Toggles -->
+                <label class="checkbox">
+                    <input type="checkbox" />
+                    <span class="checkmark"></span>
+                    Open now
+                </label>
+
+                <button class="btn primary">Apply Filters</button>
+            </form>
+        </section>
+
+        <!-- RIGHT: Explore -->
+        <section class="explore-main">
+            <h2>Explore</h2>
+
+            <div class="explore-grid">
+                <article class="business-card">
+                    <img src="https://t3.ftcdn.net/jpg/02/69/01/66/360_F_269016655_I1w1sr0w5xqR4M6uaWbKcqEDK6v0zPr8.jpg" alt="Business image">
+
+                    <div class="business-content">
+                        <h3 class="business-name">Cafe Aroma</h3>
+
+                        <p class="business-desc">
+                            A cozy neighborhood café serving freshly brewed coffee, artisan pastries,
+                            and light meals throughout the day.
+                        </p>
+
+                        <div class="business-rating">
+                            <div class="stars-display">
+                                ★★★★☆
+                            </div>
+                            <span class="rating-value">4.3</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="business-card">
+                    <img src="https://t4.ftcdn.net/jpg/01/01/03/73/360_F_101037312_qXsfQoDKvvCyBFcv9LRkME8ChG9B4W2l.jpg" alt="Business image">
+
+                    <div class="business-content">
+                        <h3 class="business-name">Urban Cuts Barber</h3>
+
+                        <p class="business-desc">
+                            Modern barber shop specializing in classic and contemporary styles for all ages.
+                        </p>
+
+                        <div class="business-rating">
+                            <div class="stars-display">
+                                ★★★★★
+                            </div>
+                            <span class="rating-value">4.9</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

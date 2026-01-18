@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Setup - Businessly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+</head>
+
+<body>
+    {% if error %}
+    <div class="alert danger">{{ error }}</div>
+    {% endif %}
+    
+    <section>
+        <h2>Finish Account Setup</h2>
+
+        <form class="form" method="POST">
+            <div class="field">
+                <select name="type" required>
+                    <option value="" disabled="" selected="">Select an option</option>
+                    <option value="standard">Standard Account</option>
+                    <option value="business">Business Account</option>
+                </select>
+                <label for="select">Account Type</label>
+            </div>
+
+            <label class="checkbox">
+                <input type="checkbox" required>
+                <span class="checkmark"></span>
+                <span>I agree to the <a href="#">Terms and Conditions</a>.</span>
+            </label>
+
+            <button class="btn primary" type="submit">Submit</button>
+        </form>
+    </section>
+</body>
+</html>
