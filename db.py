@@ -9,10 +9,12 @@ client = MongoClient(os.getenv("MONGO_URI"))
 db_client = client["db"]
 users = db_client["users"]
 
+users.create_index("auth.google", unique=True, sparse=True)
+
 class db:
     @staticmethod
-    def get_user_by_email(email: str):
-        return users.find_one({"email": email})
+    def get_user_by_google_id(google_id: str):
+        return users.find_one({"auth.google": google_id})
 
     @staticmethod
     def get_user_by_id(user_id: str):
@@ -23,8 +25,8 @@ class db:
         return users.insert_one(user_data)
 
     @staticmethod
-    def update_user_role(user_id: str, role: str):
+    def link_provider(user_id: str, provider: str, provider_id: str):
         users.update_one(
             {"_id": ObjectId(user_id)},
-            {"$set": {"role": role}}
+            {"$set": {f"auth.{provider}": provider_id}}
         )

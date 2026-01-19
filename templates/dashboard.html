@@ -1,1 +1,8 @@
-dash
+dash<br>
+
+{% if current_user %}
+{{ current_user.name }}<br>
+{{ current_user.categories }}<br>
+{{ current_user.bookmarks }}<br>
+{{ current_user.type }}
+{% endif %}

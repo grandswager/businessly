@@ -1,0 +1,45 @@
+/* --------- Auth Layout --------- */
+.auth-wrapper {
+    min-height: calc(100vh - 170px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin: auto;
+}
+
+/* Shared auth card */
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.g-recaptcha {
+    margin: auto;
+}
+
+/* --------- Auth Toggle Link --------- */
+.auth-toggle {
+    margin-top: 1.25rem;
+}
+
+.auth-toggle a {
+    font-weight: 500;
+}
+
+/* --------- Benefits List --------- */
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.2rem 0;
+}
+
+.benefits-list li {
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    color: var(--secondary);
+}

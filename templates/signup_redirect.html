@@ -4,11 +4,113 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Account Setup - Businessly</title>
+    <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup_redirect.css') }}" />
 </head>
 
+<script>
+    const selected = new Set();
+
+    function toggleCategory(el) {
+        if (accountSelect.value === "business") return;
+
+        const value = el.dataset.value;
+
+        if (selected.has(value)) {
+            removeCategory(value);
+            return;
+        }
+
+        if (selected.size >= 4) return;
+
+        selected.add(value);
+        el.classList.add("selected");
+        renderSelected();
+    }
+
+    function removeCategory(value) {
+        selected.delete(value);
+
+        const chip = document.querySelector(
+            `.category-chip[data-value="${value}"]`
+        );
+        chip.classList.remove("selected");
+
+        const selectedChip = document.querySelector(
+            `.selected-chip[data-value="${value}"]`
+        );
+
+        if (selectedChip) {
+            selectedChip.classList.add("removing");
+            setTimeout(() => selectedChip.remove(), 200);
+        }
+
+        renderSelected();
+    }
+
+    function renderSelected() {
+        const container = document.getElementById("selectedCategories");
+        const hidden = document.getElementById("hiddenInputs");
+
+        container.innerHTML = "";
+        hidden.innerHTML = "";
+
+        selected.forEach(cat => {
+            const chip = document.createElement("div");
+            chip.className = "selected-chip";
+            chip.dataset.value = cat;
+            chip.innerHTML = `
+                ${cat}
+                <span onclick="removeCategory('${cat}')">&times;</span>
+            `;
+            container.appendChild(chip);
+
+            hidden.innerHTML += `
+                <input type="hidden" name="categories" value="${cat}">
+            `;
+        });
+
+        updateMutedState();
+    }
+
+    function updateMutedState() {
+        const chips = document.querySelectorAll(".category-chip");
+
+        chips.forEach(chip => {
+            const value = chip.dataset.value;
+
+            if (!selected.has(value) && selected.size >= 4) {
+                chip.classList.add("muted");
+            } else {
+                chip.classList.remove("muted");
+            }
+        });
+    }
+
+    function skipCategories() {
+        selected.clear();
+
+        document.getElementById("selectedCategories").innerHTML = "";
+
+        document.getElementById("hiddenInputs").innerHTML = "";
+
+        document.querySelectorAll(".category-chip").forEach(chip => {
+            chip.classList.remove("selected", "muted");
+        });
+
+        document.getElementById("categoriesForm").submit();
+    }
+</script>
+
 <body>
+    <header class="ui-header">
+        <div class="header-inner">
+            <div class="logo" style="margin: auto;">businessly</div>
+        </div>
+    </header>
+
     {% if error %}
     <div class="alert danger">{{ error }}</div>
     {% endif %}
@@ -16,24 +118,224 @@
     <section>
         <h2>Finish Account Setup</h2>
 
-        <form class="form" method="POST">
-            <div class="field">
-                <select name="type" required>
-                    <option value="" disabled="" selected="">Select an option</option>
-                    <option value="standard">Standard Account</option>
-                    <option value="business">Business Account</option>
-                </select>
-                <label for="select">Account Type</label>
+        <form class="form" method="POST" id="categoriesForm">
+
+            <!-- STEP 1 -->
+            <div class="step active" id="step-1">
+                <div class="field">
+                    <select name="type" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="standard">Standard Account</option>
+                        <option value="business">Business Account</option>
+                    </select>
+                    <label>Account Type</label>
+                </div><br>
+
+                <label class="checkbox">
+                    <input type="checkbox" required>
+                    <span class="checkmark"></span>
+                    <span>I agree to the <a href="#">Terms and Conditions</a>.</span>
+                </label><br>
+
+                <button type="button" class="btn primary muted" id="continueBtn" disabled type="button">
+                    Continue
+                </button>
             </div>
 
-            <label class="checkbox">
-                <input type="checkbox" required>
-                <span class="checkmark"></span>
-                <span>I agree to the <a href="#">Terms and Conditions</a>.</span>
-            </label>
+            <!-- STEP 2A — STANDARD USER -->
+            <div class="step" id="step-2-standard">
+                <h3>Select your favourite Categories</h3>
+                <p class="caption">Optional — you can skip this step</p>
 
-            <button class="btn primary" type="submit">Submit</button>
+                <div class="category-grid">
+                    {% for cat in ["Food", "Service", "Shop", "Health"] %}
+                    <div class="category-chip" onclick="toggleCategory(this)" data-value="{{ cat }}">
+                        {{ cat }}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="selected-categories" id="selectedCategories"></div>
+                <div id="hiddenInputs"></div><br>
+
+                <div class="button-row">
+                    <button type="submit" class="btn primary">Finish Signup</button>
+                    <button type="button" class="btn outline" onclick="skipCategories()">Skip</button>
+                </div>
+            </div>
+
+            <!-- STEP 2B — BUSINESS USER -->
+            <div class="step" id="step-2-business">
+                <h3>Business Information</h3><br>
+
+                <div class="form">
+                    <div class="form-row">
+                        <div class="field">
+                            <input name="business_name" required placeholder=" " />
+                            <label>Business Name</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="field">
+                            <textarea name="description" required placeholder=" "></textarea>
+                            <label>Business Description</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row two">
+                        <div class="field">
+                            <input name="address" required placeholder=" " />
+                            <label>Street Address</label>
+                        </div>
+
+                        <div class="field">
+                            <input name="city" required placeholder=" " />
+                            <label>City</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row three">
+                        <div class="field">
+                            <input name="province" required placeholder=" " />
+                            <label>Province</label>
+                        </div>
+
+                        <div class="field">
+                            <input value="Canada" disabled />
+                            <input type="hidden" name="country" value="Canada">
+                            <label>Country</label>
+                        </div>
+
+                        <div class="field">
+                            <input name="postal_code" required placeholder=" " />
+                            <label>Postal Code</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row three">
+                        <div class="field">
+                            <input name="phone" id="phoneInput" required placeholder=" " />
+                            <label>Phone Number</label>
+                        </div>
+
+                        <div class="field">
+                            <input name="instagram" placeholder=" " />
+                            <label>Instagram (optional)</label>
+                        </div>
+
+                        <div class="field">
+                            <input name="website" placeholder=" " />
+                            <label>Website (optional)</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn primary">Finish Signup</button>
+                </div>
+            </div>
         </form>
     </section>
+
+    <script>
+        const accountSelect = document.querySelector('select[name="type"]');
+        const termsCheckbox = document.querySelector('input[type="checkbox"]');
+        const continueBtn = document.getElementById("continueBtn");
+
+        function setStandard(enabled) {
+            const categoryChips = document.querySelectorAll(".category-chip");
+            const hiddenInputs = document.getElementById("hiddenInputs");
+            const selectedContainer = document.getElementById("selectedCategories");
+
+            if (!enabled) {
+                selected.clear();
+                hiddenInputs.innerHTML = "";
+                selectedContainer.innerHTML = "";
+
+                categoryChips.forEach(chip => {
+                    chip.classList.remove("selected", "muted");
+                });
+            }
+
+            categoryChips.forEach(chip => {
+                chip.classList.toggle("muted", !enabled);
+                chip.style.pointerEvents = enabled ? "auto" : "none";
+            });
+        }
+
+        function setBusinessRequired(enabled) {
+            const fields = [
+                "business_name",
+                "address",
+                "city",
+                "province",
+                "postal_code",
+                "phone",
+                "description"
+            ];
+
+            fields.forEach(name => {
+                const el = document.querySelector(`[name="${name}"]`);
+                if (!el) return;
+
+                el.required = enabled;
+
+                if (!enabled) {
+                    el.value = "";
+                }
+            });
+        }
+
+        function validateStepOne() {
+            const valid = accountSelect.value && termsCheckbox.checked;
+
+            continueBtn.disabled = !valid;
+            continueBtn.classList.toggle("muted", !valid);
+        }
+
+        function goToStep2() {
+            document.getElementById("step-1").classList.remove("active");
+
+            if (accountSelect.value === "business") {
+                document.getElementById("step-2-business").classList.add("active");
+            } else {
+                document.getElementById("step-2-standard").classList.add("active");
+            }
+        }
+
+        accountSelect.addEventListener("change", () => {
+            validateStepOne();
+
+            if (accountSelect.value === "business") {
+                setBusinessRequired(true);
+                setStandard(false);
+            } else if (accountSelect.value === "standard") {
+                setBusinessRequired(false);
+                setStandard(true);
+            }
+        });
+
+        termsCheckbox.addEventListener("change", validateStepOne);
+
+        continueBtn.addEventListener("click", () => {
+            if (continueBtn.disabled) return;
+            goToStep2();
+        });
+
+        const phoneInput = document.getElementById("phoneInput");
+
+        if (phoneInput) {
+            phoneInput.addEventListener("input", () => {
+                let digits = phoneInput.value.replace(/\D/g, "").slice(0, 10);
+
+                if (digits.length >= 6) {
+                    phoneInput.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+                } else if (digits.length >= 3) {
+                    phoneInput.value = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+                } else {
+                    phoneInput.value = digits;
+                }
+            });
+        }
+    </script>
 </body>
 </html>

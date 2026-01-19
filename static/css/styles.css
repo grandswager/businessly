@@ -129,16 +129,19 @@ section:hover {
 
 .btn.primary {
     background: var(--primary);
+    border: 2px solid var(--primary);
     color: white;
 }
 
 .btn.secondary {
     background: var(--secondary);
+    border: 2px solid var(--secondary);
     color: white;
 }
 
 .btn.danger {
     background: var(--danger);
+    border: 2px solid var(--danger);
     color: white;
 }
 
@@ -171,7 +174,7 @@ section:hover {
 .btn.muted {
     background: var(--muted);
     color: #9aa0a6;
-    border: none;
+    border: 2px solid #9aa0a6;
     border-radius: var(--radius-large);
     padding: var(--padding);
     cursor: not-allowed;

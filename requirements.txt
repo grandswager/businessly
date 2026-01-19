@@ -3,3 +3,4 @@ flask-pymongo
 authlib 
 python-dotenv 
 requests
+uuid

@@ -1,0 +1,129 @@
+/* ---------------- Signup Steps ---------------- */
+
+.step {
+    opacity: 0;
+    display: none;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.step.active {
+    opacity: 1;
+    display: block;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* ---------------- Category Chips ---------------- */
+
+.category-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-chip {
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-large);
+    border: 2px solid var(--muted);
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+    user-select: none;
+}
+
+.category-chip:hover {
+    border-color: var(--primary);
+}
+
+.category-chip.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Selected chips row */
+.selected-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.selected-chip {
+    background: var(--primary);
+    color: white;
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--radius-large);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.selected-chip span {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* -------- Animated Selected Chips -------- */
+
+.selected-chip {
+    animation: chipIn 0.25s ease forwards;
+}
+
+@keyframes chipIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Exit animation */
+.selected-chip.removing {
+    animation: chipOut 0.2s ease forwards;
+}
+
+@keyframes chipOut {
+    to {
+        opacity: 0;
+        transform: scale(0.7) translateY(6px);
+    }
+}
+
+/* -------- Muted Category Chips -------- */
+
+.category-chip.muted {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(0.8);
+}
+
+/* -------- Form rows -------- */
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.form-row.two {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.form-row.three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Mobile fallback */
+@media (max-width: 640px) {
+    .form-row.two {
+        grid-template-columns: 1fr;
+    }
+}

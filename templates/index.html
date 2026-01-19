@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Businessly - Find Local Business Around Your Neighbourhood</title>
+    <title>Businessly - Find Local Businesses Around Your Neighbourhood</title>
+    <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
@@ -28,7 +29,7 @@
                 <div class="field">
                     <select>
                         <option value="" selected></option>
-                        <option>Restaurant</option>
+                        <option>Food</option>
                         <option>Shop</option>
                         <option>Service</option>
                         <option>Health</option>
@@ -48,7 +49,7 @@
                         max="20"
                         value="5"
                         class="range"
-                        oninput="distanceValue.textContent = this.value + ' km'"
+                        oninput="updateDistance(this.value)"
                     />
                 </div>
 
@@ -121,5 +122,19 @@
             </div>
         </section>
     </main>
+
+    <script>
+        function updateDistance(value) {
+            const output = document.getElementById("distanceValue");
+
+            if (value == 1) {
+                output.textContent = "<1 km";
+            } else if (value == 20) {
+                output.textContent = "20+ km";
+            } else {
+                output.textContent = value + " km";
+            }
+        }
+    </script>
 </body>
 </html>

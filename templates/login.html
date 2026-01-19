@@ -1,16 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
-  <script src="https://www.google.com/recaptcha/api.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Businessly</title>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
 </head>
 <body>
-  <h2>Sign in</h2>
+    {% include "navbar.html" %}
 
-  <form action="/login/google" method="POST">
-    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
-    <br>
-    <button type="submit">Sign in with Google</button>
-  </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="auth-wrapper">
+        <section class="auth-card">
+            <div id="authAnimated" class="auth-animate">
+                <h2 id="authTitle">Login to your Businessly Account</h2>
+
+                <p class="body-text" id="authDescription"></p>
+            </div>
+
+            <form action="/login/google" method="POST" class="form">
+                <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+
+                <button type="submit" class="btn primary" id="loginButton">
+                    Login with Google
+                </button>
+            </form>
+
+            <p class="caption auth-toggle">
+                <span id="loginCaption">Don't have an account?</span>
+                <a href="#" onclick="toggleAuth(event)">Create a New Account</a>
+            </p>
+        </section>
+    </div>
+
+    <script>
+        let isCreateMode = false;
+
+        function toggleAuth(event) {
+            // event.preventDefault();
+
+            const title = document.getElementById("authTitle");
+            const description = document.getElementById("authDescription");
+            const loginButton = document.getElementById("loginButton");
+            const loginCaption = document.getElementById("loginCaption");
+            const toggleText = document.querySelector(".auth-toggle a");
+            
+            isCreateMode = !isCreateMode;
+
+            if (isCreateMode) {
+                title.textContent = "Create your Businessly Account";
+                description.innerHTML = `Many benefits in creating an account!
+                `;
+                loginButton.textContent = "Signup with Google";
+                loginCaption.textContent = "Already have an account?";
+                toggleText.textContent = "Back to Login";
+            } else {
+                title.textContent = "Login to your Businessly Account";
+                description.textContent = "";
+                loginButton.textContent = "Login with Google";
+                loginCaption.textContent = "Don't have an account?";
+                toggleText.textContent = "Create a New Account";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has("signup")) {
+                toggleAuth(); // default to signup view
+            }
+        });
+    </script>
 </body>
 </html>
