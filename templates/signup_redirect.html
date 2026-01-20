@@ -169,10 +169,21 @@
                 <h3>Business Information</h3><br>
 
                 <div class="form">
-                    <div class="form-row">
+                    <div class="form-row two">
                         <div class="field">
                             <input name="business_name" required placeholder=" " />
                             <label>Business Name</label>
+                        </div>
+
+                        <div class="field">
+                            <select name="business_category" required>
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="Food">Food</option>
+                                <option value="Service">Service</option>
+                                <option value="Shop">Shop</option>
+                                <option value="Health">Health</option>
+                            </select>
+                            <label>Business Category</label>
                         </div>
                     </div>
 

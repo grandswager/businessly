@@ -78,6 +78,8 @@ def signup_redirect():
 
         VALID_CATEGORIES = {"Food", "Service", "Shop", "Health"}
 
+        user_uuid = str(uuid.uuid4())
+
         if account_type not in ("standard", "business"):
             return render_template("signup_redirect.html", error="Please select a valid account type.")
         
@@ -87,24 +89,32 @@ def signup_redirect():
 
             if not all(cat in VALID_CATEGORIES for cat in categories):
                 return render_template("signup_redirect.html", error="Invalid category selection.")
-
-            business = None
+            
+            user_name = data["name"]
         else:
             categories = []
 
+            user_name = request.form.get("business_name")
+
             business = {
+                "uuid": user_uuid,
                 "name": request.form.get("business_name"),
+                "category": request.form.get("business_category"),
                 "address": request.form.get("address"),
                 "city": request.form.get("city"),
                 "province": request.form.get("province"),
                 "country": "Canada",
-                "postal_code": request.form.get("postal_code"),
+                "postal_code": request.form.get("postal_code").replace(" ", "").upper()[:6],
                 "description": request.form.get("description"),
                 "phone": request.form.get("phone"),
                 "socials": {
                     "instagram": request.form.get("instagram") or None,
                     "website": request.form.get("website") or None
-                }
+                },
+                "rating": 0,
+                "bookmarks": 0,
+                "comments": [],
+                "coupons": {}
             }
 
             required_fields = [business["name"], business["address"], business["city"], business["province"], business["postal_code"], business["description"], business["phone"]]
@@ -113,19 +123,21 @@ def signup_redirect():
                 return render_template("signup_redirect.html", error="Please complete all required business fields.")
 
         user = {
-            "uuid": str(uuid.uuid4()),
+            "uuid": user_uuid,
             "auth": data["auth"],
             "email": data["email"],
-            "name": data["name"],
+            "name": user_name,
             "picture": data["picture"],
             "type": account_type,
             "categories": categories,
-            "business": business,
             "bookmarks": [],
             "created_at": datetime.now(timezone.utc)
         }
 
         result = db.create_user(user)
+
+        if account_type == "business":
+            db.create_business_profile(business)
 
         session.pop("new_user")
         session["user_id"] = str(result.inserted_id)
