@@ -4,9 +4,7 @@ import re
 from db import db
 from db import business_profiles
 
-
 class BusinessService:
-
     @staticmethod
     def create_business_profile(business_data: dict):
         return business_profiles.insert_one(business_data)
@@ -77,12 +75,10 @@ def build_business_object(parsed_data: dict):
         "coupons": {}
     }
 
-
 def process_and_insert(input_string: str):
     parsed = parse_input(input_string)
     business = build_business_object(parsed)
     return BusinessService.create_business_profile(business)
-
 
 # -------------------------
 # Example usage
