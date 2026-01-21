@@ -62,7 +62,7 @@ class RecommendationService:
     @staticmethod
     def _score(business: dict, rating: float, distance_km: float) -> float:
         bookmarks = int(business.get("bookmarks", 0))
-        return (rating * 2.5) + math.log(bookmarks + 1) - (distance_km * 0.2)
+        return (rating * 2) + math.log(bookmarks + 1) - (distance_km * 0.2)
 
     @staticmethod
     def _distance_km(lat1, lng1, lat2, lng2):

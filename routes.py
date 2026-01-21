@@ -25,8 +25,6 @@ def index():
 
     businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, max_distance_km=10, min_rating=0, categories=categories)
 
-    print(businesses)
-
     return render_template("index.html", businesses=businesses, address=user_location)
 
 @app.route("/login")

@@ -6,6 +6,7 @@
     --primary: #1a73e8;
     --secondary: #5f6368;
     --danger: #d93025;
+    --info: #EEAE3C;
     --muted: #e8eaed;
 
     --text-color: #202124;
@@ -337,6 +338,7 @@ img:hover {
 .badge.primary { background: var(--primary); }
 .badge.secondary { background: var(--secondary); }
 .badge.danger { background: var(--danger); }
+.badge.info { background: var(--info); color: #333; }
 .badge.muted { background: var(--muted); color: #333; }
 
 /* ---------------- Switches ---------------- */

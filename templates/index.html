@@ -111,7 +111,7 @@
                             <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
 
                             <div class="business-content">
-                                <span class="badge muted">{{ business.category }}</span>
+                                <div><span class="badge muted">{{ business.category }}</span> <span class="badge info"><i class="fa-regular fa-bookmark"></i> {{ business.bookmarks }}</span></div>
 
                                 <h3 class="business-name">
                                     {{ business.name }}
