@@ -12,6 +12,8 @@ business_profiles = db_client["business_profiles"]
 
 users.create_index("auth.google", unique=True, sparse=True)
 
+business_profiles.create_index([("location", "2dsphere")])
+
 class db:
     @staticmethod
     def get_user_by_google_id(google_id: str):

@@ -114,7 +114,6 @@
 /* ---------------- Responsive ---------------- */
 
 @media (max-width: 780px) {
-
     .nav {
         position: absolute;
         top: 94%;
@@ -131,6 +130,10 @@
 
     .menu-toggle {
         display: flex;
+    }
+
+    .user-menu {
+        display: none;
     }
 }
 

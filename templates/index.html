@@ -13,115 +13,191 @@
 <body>
     {% include "navbar.html" %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
     <main class="explore-layout">
-        <!-- LEFT: Search & Filters -->
-        <section class="explore-sidebar">
-            <h2>Search</h2>
+        <!-- LEFT: Sidebar -->
+        <div class="explore-sidebar">
+            <section>
+                <span class="location-label">Location</span>
 
-            <form class="form" method="POST">
-                <!-- Search -->
-                <div class="field">
-                    <input type="text" placeholder=" " />
-                    <label>Search business</label>
+                <div class="location-display">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span class="location-text">{{ address }}</span>
+                </div><br>
+
+                <div class="form">
+                    <button class="btn primary" type="button" onclick="openLocationModal()">
+                        Change Location
+                    </button>
                 </div>
+            </section>
+            <section>
+                <h2>Search</h2>
 
-                <!-- Category -->
-                <div class="field">
-                    <select>
-                        <option value="" selected></option>
-                        <option>Food</option>
-                        <option>Shop</option>
-                        <option>Service</option>
-                        <option>Health</option>
-                    </select>
-                    <label>Category</label>
-                </div>
-
-                <!-- Distance Slider -->
-                <div class="range-field">
-                    <label class="range-label">
-                        Distance
-                        <span id="distanceValue">5 km</span>
-                    </label>
-                    <input
-                        type="range"
-                        min="1"
-                        max="20"
-                        value="5"
-                        class="range"
-                        oninput="updateDistance(this.value)"
-                    />
-                </div>
-
-                <!-- Rating -->
-                <div class="rating-filter">
-                    <span class="caption">Minimum rating</span>
-                    <div class="stars">
-                        <input type="radio" name="rating" id="r5"><label for="r5">★</label>
-                        <input type="radio" name="rating" id="r4"><label for="r4">★</label>
-                        <input type="radio" name="rating" id="r3"><label for="r3">★</label>
-                        <input type="radio" name="rating" id="r2"><label for="r2">★</label>
-                        <input type="radio" name="rating" id="r1"><label for="r1">★</label>
+                <form class="form" method="POST">
+                    <!-- Search -->
+                    <div class="field">
+                        <input type="text" placeholder=" " />
+                        <label>Search business</label>
                     </div>
-                </div>
 
-                <!-- Toggles -->
-                <label class="checkbox">
-                    <input type="checkbox" />
-                    <span class="checkmark"></span>
-                    Open now
-                </label>
+                    <!-- Category -->
+                    <div class="field">
+                        <select>
+                            <option value="" selected></option>
+                            <option>Food</option>
+                            <option>Shop</option>
+                            <option>Service</option>
+                            <option>Health</option>
+                        </select>
+                        <label>Category</label>
+                    </div>
 
-                <button class="btn primary">Apply Filters</button>
-            </form>
-        </section>
+                    <!-- Distance Slider -->
+                    <div class="range-field">
+                        <label class="range-label">
+                            Distance
+                            <span id="distanceValue">5 km</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="1"
+                            max="20"
+                            value="5"
+                            class="range"
+                            oninput="updateDistance(this.value)"
+                        />
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="rating-filter">
+                        <span class="caption">Minimum rating</span>
+                        <div class="stars">
+                            <input type="radio" name="rating" id="r5"><label for="r5">★</label>
+                            <input type="radio" name="rating" id="r4"><label for="r4">★</label>
+                            <input type="radio" name="rating" id="r3"><label for="r3">★</label>
+                            <input type="radio" name="rating" id="r2"><label for="r2">★</label>
+                            <input type="radio" name="rating" id="r1"><label for="r1">★</label>
+                        </div>
+                    </div>
+
+                    <!-- Toggles -->
+                    <label class="checkbox">
+                        <input type="checkbox" />
+                        <span class="checkmark"></span>
+                        Open now
+                    </label>
+
+                    <button class="btn primary">Apply Filters</button>
+                </form>
+            </section>
+        </div>
 
         <!-- RIGHT: Explore -->
         <section class="explore-main">
             <h2>Explore</h2>
 
             <div class="explore-grid">
-                <article class="business-card">
-                    <img src="https://t3.ftcdn.net/jpg/02/69/01/66/360_F_269016655_I1w1sr0w5xqR4M6uaWbKcqEDK6v0zPr8.jpg" alt="Business image">
+                {% if businesses %}
+                    {% for business in businesses %}
+                        <article class="business-card">
+                            <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
 
-                    <div class="business-content">
-                        <h3 class="business-name">Cafe Aroma</h3>
+                            <div class="business-content">
+                                <span class="badge muted">{{ business.category }}</span>
 
-                        <p class="business-desc">
-                            A cozy neighborhood café serving freshly brewed coffee, artisan pastries,
-                            and light meals throughout the day.
-                        </p>
+                                <h3 class="business-name">
+                                    {{ business.name }}
+                                </h3>
 
-                        <div class="business-rating">
-                            <div class="stars-display">
-                                ★★★★☆
+                                <p class="business-desc">
+                                    {{ business.description | truncate(120) }}
+                                </p>
+
+                                <div class="business-rating">
+                                    <div class="stars-display">
+                                        {% set full_stars = business.rating | int %}
+                                        {% set half_star = 1 if business.rating - full_stars >= 0.5 else 0 %}
+                                        {% set empty_stars = 5 - full_stars - half_star %}
+
+                                        {{ "★" * full_stars }}{% if half_star %}☆{% endif %}{{ "☆" * empty_stars }}
+                                    </div>
+
+                                    <span class="rating-value">
+                                        {{ "%.1f"|format(business.rating) }}{% if business.distance_km is defined %} | {{ business.distance_km }} km{% endif %}
+                                    </span>
+                                </div>
                             </div>
-                            <span class="rating-value">4.3</span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="business-card">
-                    <img src="https://t4.ftcdn.net/jpg/01/01/03/73/360_F_101037312_qXsfQoDKvvCyBFcv9LRkME8ChG9B4W2l.jpg" alt="Business image">
-
-                    <div class="business-content">
-                        <h3 class="business-name">Urban Cuts Barber</h3>
-
-                        <p class="business-desc">
-                            Modern barber shop specializing in classic and contemporary styles for all ages.
-                        </p>
-
-                        <div class="business-rating">
-                            <div class="stars-display">
-                                ★★★★★
-                            </div>
-                            <span class="rating-value">4.9</span>
-                        </div>
-                    </div>
-                </article>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-state">
+                        No businesses found nearby. Try increasing your distance.
+                    </p>
+                {% endif %}
             </div>
         </section>
     </main>
+
+    <!-- Location Modal -->
+    <div class="modal-backdrop" id="locationModal">
+        <div class="modal-card">
+            <h2>Change Location</h2>
+
+            <form class="form" method="POST" action="/set_location">
+                <div class="field">
+                    <input type="text" placeholder=" " name="address" />
+                    <label>Address</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" placeholder=" " name="city" />
+                    <label>City</label>
+                </div>
+
+                <div class="field">
+                    <select name="province" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="Alberta">Alberta</option>
+                        <option value="British Columbia">British Columbia</option>
+                        <option value="Manitoba">Manitoba</option>
+                        <option value="New Brunswick">New Brunswick</option>
+                        <option value="Newfoundland and Labrador">Newfoundland and Labrador</option>
+                        <option value="Nova Scotia">Nova Scotia</option>
+                        <option value="Ontario">Ontario</option>
+                        <option value="Prince Edward Island">Prince Edward Island</option>
+                        <option value="Quebec">Quebec</option>
+                        <option value="Saskatchewan">Saskatchewan</option>
+                        <option value="Yukon">Yukon</option>
+                        <option value="Northwest Territories">Northwest Territories</option>
+                        <option value="Nunavut">Nunavut</option>
+                    </select>
+                    <label>Province</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" value="Canada" name="country" disabled />
+                    <label>Country</label>
+                </div>
+
+                <div class="button-row">
+                    <button type="button" class="btn outline" onclick="closeLocationModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn primary">
+                        Save Location
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         function updateDistance(value) {
@@ -135,6 +211,20 @@
                 output.textContent = value + " km";
             }
         }
+
+        function openLocationModal() {
+            document.getElementById("locationModal").classList.add("active");
+        }
+
+        function closeLocationModal() {
+            document.getElementById("locationModal").classList.remove("active");
+        }
+
+        document.getElementById("locationModal").addEventListener("click", e => {
+            if (e.target.id === "locationModal") {
+                closeLocationModal();
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,14 +1,33 @@
 import requests
 import uuid
 from datetime import datetime, timezone
-from flask import redirect, url_for, session, request, render_template, flash
+from flask import redirect, url_for, session, request, render_template, flash, jsonify
 from app import app, RECAPTCHA_SITE, RECAPTCHA_SECRET, google
 from db import db
 from auth_utils import get_current_user, require_business_user
+from services.GeocodingService import GeocodingService
+from services.RecommendationService import RecommendationService
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    user = get_current_user()
+    user_lat = session.get("user_lat")
+    user_lng = session.get("user_lng")
+    user_location = session.get("user_location") or "Cornell, Markham"
+
+    if not user_lat or not user_lng:
+        user_lat, user_lng = 43.892958, -79.228599
+
+    if user:
+        categories = user["categories"]
+    else:
+        categories = []
+
+    businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, max_distance_km=10, min_rating=0, categories=categories)
+
+    print(businesses)
+
+    return render_template("index.html", businesses=businesses, address=user_location)
 
 @app.route("/login")
 def login():
@@ -16,6 +35,26 @@ def login():
         return redirect("/")
     
     return render_template("login.html", recaptcha_site_key=RECAPTCHA_SITE)
+
+@app.route("/set_location", methods=["POST"])
+def set_location():
+    try:
+        lat, lng = GeocodingService.geocode(
+            address = request.form.get("address"),
+            city = request.form.get("city"),
+            province = request.form.get("province")
+        )
+    except Exception:
+        flash("Address not found. Please check the address.", "danger")
+        return redirect("/")
+    
+    formatted_address = request.form.get("address").title() + ", " + request.form.get("city").title()
+
+    session["user_lat"] = lat
+    session["user_lng"] = lng
+    session["user_location"] = formatted_address
+
+    return redirect("/")
 
 @app.route("/login/google", methods=["POST"])
 def google_login():
@@ -96,6 +135,15 @@ def signup_redirect():
 
             user_name = request.form.get("business_name")
 
+            try:
+                lat, lng = GeocodingService.geocode(
+                    address = request.form.get("address"),
+                    city = request.form.get("city"),
+                    province = request.form.get("province")
+                )
+            except Exception:
+                return render_template("signup_redirect.html", error="We couldn't locate your address. Please check and try again.")
+
             business = {
                 "uuid": user_uuid,
                 "name": request.form.get("business_name"),
@@ -105,13 +153,19 @@ def signup_redirect():
                 "province": request.form.get("province"),
                 "country": "Canada",
                 "postal_code": request.form.get("postal_code").replace(" ", "").upper()[:6],
+                "location": {
+                    "type": "Point",
+                    "coordinates": [lng, lat]
+                },
                 "description": request.form.get("description"),
                 "phone": request.form.get("phone"),
                 "socials": {
                     "instagram": request.form.get("instagram") or None,
                     "website": request.form.get("website") or None
                 },
-                "rating": 0,
+                "image_url": "https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg",
+                "combined_rating": 0,
+                "users_rated": 0,
                 "bookmarks": 0,
                 "comments": [],
                 "coupons": {}
@@ -131,6 +185,7 @@ def signup_redirect():
             "type": account_type,
             "categories": categories,
             "bookmarks": [],
+            "rated": {},
             "created_at": datetime.now(timezone.utc)
         }
 

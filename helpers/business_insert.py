@@ -3,6 +3,8 @@ import random
 import re
 from db import db
 from db import business_profiles
+from services.GeocodingService import GeocodingService
+
 
 class BusinessService:
     @staticmethod
@@ -17,22 +19,35 @@ def generate_random_phone():
 def parse_input(input_string: str):
     """
     Example input:
-    Daisies Convenience Store : 96 Cornell Park Ave #4, Markham, ON L6B 1B6; DESCRIPTION
+    Daisies Convenience Store : 96 Cornell Park Ave #4, Markham, ON L6B 1B6;
+    DESCRIPTION;
+    (https://image-url.jpg)
     """
 
     # Split name from rest
     name_part, rest = input_string.split(":", 1)
     business_name = name_part.strip()
 
-    # Split address from description
-    address_part, description = rest.split(";", 1)
-    description = description.strip()
+    # Split address, description, image URL
+    parts = [p.strip() for p in rest.split(";")]
 
-    # Extract street, city, province, postal
-    # "96 Cornell Park Ave #4, Markham, ON L6B 1B6"
+    if len(parts) < 3:
+        raise ValueError("Input must include address, description, and image URL")
+
+    address_part = parts[0]
+    description = parts[1]
+
+    # Extract image URL from parentheses
+    image_match = re.search(r"\((https?://.+?)\)", parts[2])
+    if not image_match:
+        raise ValueError("Image URL format is invalid")
+
+    image_url = image_match.group(1)
+
+    # Extract street, city, province, postal code
     address_match = re.match(
         r"(.+?),\s*(.+?),\s*([A-Z]{2})\s*([A-Z]\d[A-Z]\s?\d[A-Z]\d)",
-        address_part.strip(),
+        address_part
     )
 
     if not address_match:
@@ -50,10 +65,17 @@ def parse_input(input_string: str):
         "province": province,
         "postal_code": postal_code,
         "description": description,
+        "image_url": image_url,
     }
 
 
 def build_business_object(parsed_data: dict):
+    coords = GeocodingService.geocode(
+        address=parsed_data["address"],
+        city=parsed_data["city"],
+        province=parsed_data["province"]
+    )
+
     return {
         "uuid": str(uuid.uuid4()),
         "name": parsed_data["business_name"],
@@ -63,17 +85,24 @@ def build_business_object(parsed_data: dict):
         "province": parsed_data["province"],
         "country": "Canada",
         "postal_code": parsed_data["postal_code"],
+        "location": {
+            "type": "Point",
+            "coordinates": [coords[1], coords[0]]
+        },
         "description": parsed_data["description"],
         "phone": generate_random_phone(),
         "socials": {
             "instagram": None,
             "website": None
         },
-        "rating": 0,
+        "image_url": parsed_data["image_url"],
+        "combined_rating": 0,
+        "users_rated": 0,
         "bookmarks": 0,
         "comments": [],
         "coupons": {}
     }
+
 
 def process_and_insert(input_string: str):
     parsed = parse_input(input_string)
