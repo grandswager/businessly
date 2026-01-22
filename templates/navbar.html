@@ -1,6 +1,10 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+
 <header class="ui-header">
     <div class="header-inner">
-        <div class="logo">businessly</div>
+        <div class="logo" onclick="window.location.href='/'" style="cursor: pointer;">businessly</div>
 
         <nav class="nav">
             <a href="{{ url_for('index') }}" class="{% if current_path == '/' %}active{% endif %}">Home</a>

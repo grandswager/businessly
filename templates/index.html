@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Businessly - Find Local Businesses Around Your Neighbourhood</title>
     <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+
+    {% include "navbar.html" %}
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
 </head>
 
 <body>
-    {% include "navbar.html" %}
-
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
             <div class="alert {{ category }}">

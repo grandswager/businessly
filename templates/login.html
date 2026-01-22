@@ -6,13 +6,12 @@
     <title>Login - Businessly</title>
     <script src="https://www.google.com/recaptcha/api.js"></script>
     <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+
+    {% include "navbar.html" %}
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
 </head>
 <body>
-    {% include "navbar.html" %}
-
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
             <div class="alert {{ category }}">
@@ -59,7 +58,7 @@
             isCreateMode = !isCreateMode;
 
             if (isCreateMode) {
-                title.textContent = "Create your Businessly Account";
+                title.textContent = "Create your Businessly Account today!";
                 description.innerHTML = `Many benefits in creating an account!
                 `;
                 loginButton.textContent = "Signup with Google";
