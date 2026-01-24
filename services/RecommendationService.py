@@ -10,6 +10,7 @@ class RecommendationService:
         max_distance_km: float = 10,
         min_rating: float = 0,
         categories: Optional[List[str]] = None,
+        user_query: Optional[str] = None,
         limit: int = 20
     ) -> List[dict]:
 
@@ -27,6 +28,12 @@ class RecommendationService:
 
         if categories:
             query["category"] = {"$in": categories}
+
+        if user_query:
+            query["$or"] = [
+                {"name": {"$regex": user_query, "$options": "i"}},
+                {"description": {"$regex": user_query, "$options": "i"}},
+            ]
 
         results = list(
             business_profiles.find(query).limit(limit)

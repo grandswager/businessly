@@ -15,15 +15,29 @@ def index():
     user_lng = session.get("user_lng")
     user_location = session.get("user_location") or "Cornell, Markham"
 
+    query = request.args.get("query") or None
+    category = request.args.get("category") or None
+    max_distance = request.args.get("distance", type=int) or 10
+    min_rating = request.args.get("rating", type=int) or 0
+
+    print(query, category, max_distance, min_rating)
+
     if not user_lat or not user_lng:
         user_lat, user_lng = 43.892958, -79.228599
 
-    if user:
+    if category != "none" and category != None:
+        categories = [category]
+    elif category == "none" or category == None:
+        categories = []
+    elif user:
         categories = user["categories"]
     else:
         categories = []
+    
+    if max_distance >= 20:
+        max_distance = 20020 # (max distance from one point to another on earth)
 
-    businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, max_distance_km=10, min_rating=0, categories=categories)
+    businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, user_query=query, max_distance_km=max_distance, min_rating=min_rating, categories=categories)
 
     return render_template("index.html", businesses=businesses, address=user_location)
 

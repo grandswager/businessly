@@ -132,8 +132,12 @@
         display: flex;
     }
 
-    .user-menu {
+    .user-menu .signed-in {
         display: none;
+    }
+
+    .user-menu .signed-out {
+        display: block;
     }
 }
 

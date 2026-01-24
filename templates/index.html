@@ -40,21 +40,21 @@
             <section>
                 <h2>Search</h2>
 
-                <form class="form" method="POST">
+                <form class="form" method="GET">
                     <!-- Search -->
                     <div class="field">
-                        <input type="text" placeholder=" " />
+                        <input type="text" placeholder=" " name="query" autocomplete="off" />
                         <label>Search business</label>
                     </div>
 
                     <!-- Category -->
                     <div class="field">
-                        <select>
-                            <option value="" selected></option>
-                            <option>Food</option>
-                            <option>Shop</option>
-                            <option>Service</option>
-                            <option>Health</option>
+                        <select name="category">
+                            <option value="none" selected>All Categories</option>
+                            <option value="Food">Food</option>
+                            <option value="Shop">Shop</option>
+                            <option value="Service">Service</option>
+                            <option value="Health">Health</option>
                         </select>
                         <label>Category</label>
                     </div>
@@ -63,14 +63,15 @@
                     <div class="range-field">
                         <label class="range-label">
                             Distance
-                            <span id="distanceValue">5 km</span>
+                            <span id="distanceValue">10 km</span>
                         </label>
                         <input
                             type="range"
                             min="1"
                             max="20"
-                            value="5"
+                            value="10"
                             class="range"
+                            name="distance"
                             oninput="updateDistance(this.value)"
                         />
                     </div>
@@ -79,22 +80,18 @@
                     <div class="rating-filter">
                         <span class="caption">Minimum rating</span>
                         <div class="stars">
-                            <input type="radio" name="rating" id="r5"><label for="r5">★</label>
-                            <input type="radio" name="rating" id="r4"><label for="r4">★</label>
-                            <input type="radio" name="rating" id="r3"><label for="r3">★</label>
-                            <input type="radio" name="rating" id="r2"><label for="r2">★</label>
-                            <input type="radio" name="rating" id="r1"><label for="r1">★</label>
+                            <input type="radio" name="rating" id="r5" value="5"><label for="r5">★</label>
+                            <input type="radio" name="rating" id="r4" value="4"><label for="r4">★</label>
+                            <input type="radio" name="rating" id="r3" value="3"><label for="r3">★</label>
+                            <input type="radio" name="rating" id="r2" value="2"><label for="r2">★</label>
+                            <input type="radio" name="rating" id="r1" value="1"><label for="r1">★</label>
                         </div>
                     </div>
 
-                    <!-- Toggles -->
-                    <label class="checkbox">
-                        <input type="checkbox" />
-                        <span class="checkmark"></span>
-                        Open now
-                    </label>
-
-                    <button class="btn primary">Apply Filters</button>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button type="submit" class="btn primary" style="width: 100%;">Apply Filters</button>
+                        <button type="button" class="btn outline" id="clearFiltersBtn" style="display: none; width: 100%;" onclick="window.location.href='/'">Clear Filters</button>
+                    </div>
                 </form>
             </section>
         </div>
@@ -222,6 +219,67 @@
         document.getElementById("locationModal").addEventListener("click", e => {
             if (e.target.id === "locationModal") {
                 closeLocationModal();
+            }
+        });
+
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                query: params.get("query"),
+                category: params.get("category"),
+                distance: params.get("distance"),
+                rating: params.get("rating"),
+            };
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = getQueryParams();
+
+            // Search input
+            if (params.query) {
+                document.querySelector('input[name="query"]').value = params.query;
+            }
+
+            // Category select
+            if (params.category) {
+                document.querySelector('select[name="category"]').value = params.category;
+            }
+
+            // Distance range
+            if (params.distance) {
+                const distanceInput = document.querySelector('input[name="distance"]');
+                distanceInput.value = params.distance;
+                updateDistance(params.distance);
+            }
+
+            // Rating stars
+            if (params.rating) {
+                const ratingInput = document.querySelector(
+                    `input[name="rating"][value="${params.rating}"]`
+                );
+                if (ratingInput) ratingInput.checked = true;
+            }
+        });
+
+        function hasActiveFilters() {
+            const params = new URLSearchParams(window.location.search);
+
+            const query = params.get("query");
+            const category = params.get("category");
+            const distance = params.get("distance");
+            const rating = params.get("rating");
+
+            return (
+                (query && query.trim() !== "") ||
+                (category && category !== "none") ||
+                distance ||
+                rating
+            );
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (hasActiveFilters()) {
+                document.getElementById("clearFiltersBtn").style.display = "block";
             }
         });
     </script>
