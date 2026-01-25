@@ -133,12 +133,13 @@
                             </div>
                         </article>
                     {% endfor %}
-                {% else %}
-                    <p class="empty-state">
-                        No businesses found nearby. Try increasing your distance.
-                    </p>
                 {% endif %}
             </div>
+            {% if not businesses %}
+                <p class="empty-state">
+                    No businesses found nearby. Try increasing your distance or adjusting your search filters.
+                </p>
+            {% endif %}
         </section>
     </main>
 
