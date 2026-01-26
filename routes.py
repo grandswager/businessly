@@ -198,6 +198,7 @@ def signup_redirect():
             "categories": categories,
             "bookmarks": [],
             "rated": {},
+            "recently_viewed": [],
             "created_at": datetime.now(timezone.utc)
         }
 
