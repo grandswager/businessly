@@ -1,6 +1,6 @@
 import math
 from typing import Optional, List
-from db import business_profiles
+from services.DatabaseService import business_profiles
 
 class RecommendationService:
     @staticmethod

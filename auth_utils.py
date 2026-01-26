@@ -1,5 +1,5 @@
 from flask import session, abort
-from db import db
+from services.DatabaseService import db
 
 def get_current_user():
     if "user_id" in session:

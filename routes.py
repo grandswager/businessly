@@ -3,8 +3,8 @@ import uuid
 from datetime import datetime, timezone
 from flask import redirect, url_for, session, request, render_template, flash, jsonify
 from app import app, RECAPTCHA_SITE, RECAPTCHA_SECRET, google
-from db import db
 from auth_utils import get_current_user, require_business_user
+from services.DatabaseService import db
 from services.GeocodingService import GeocodingService
 from services.RecommendationService import RecommendationService
 

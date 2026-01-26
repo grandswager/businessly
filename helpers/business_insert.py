@@ -1,8 +1,7 @@
 import uuid
 import random
 import re
-from db import db
-from db import business_profiles
+from services.DatabaseService import business_profiles
 from services.GeocodingService import GeocodingService
 
 

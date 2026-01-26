@@ -3,7 +3,7 @@ from flask import Flask, session
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 
-from db import db
+from services.DatabaseService import db
 
 load_dotenv()
 
