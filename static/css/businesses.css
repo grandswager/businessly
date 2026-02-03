@@ -1,0 +1,333 @@
+/* --------- Page Container --------- */
+.page-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* --------- Business Layout --------- */
+.business-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+/* Image column */
+.business-media img {
+    position: sticky;
+    top: 2rem;
+}
+
+/* Content column */
+.business-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Meta info grouping */
+.business-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* --------- No Business Layout Fix --------- */
+.no_business-card {
+    max-width: 480px;
+    margin: 6rem auto;
+    text-align: center;
+}
+
+.no_business-card h1 {
+    font-size: 2rem;
+    color: var(--danger);
+    margin-bottom: 0.75rem;
+}
+
+.no_business-card p {
+    font-size: 1rem;
+    color: var(--secondary);
+}
+
+.no_business-card .caption {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius);
+    background: var(--muted);
+    font-family: monospace;
+}
+
+/* --------- Coupons --------- */
+.coupons-section h2 {
+    margin-bottom: 1rem;
+}
+
+/* Grid */
+.coupon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Coupon card */
+.coupon-card {
+    background: white;
+    border-radius: var(--radius-large);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.coupon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+}
+
+.coupon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+/* Coupon code */
+.coupon-code {
+    margin-top: auto;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    background: var(--muted);
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-family: monospace;
+}
+
+/* --------- Locked State --------- */
+.coupon-locked {
+    position: relative;
+}
+
+.coupon-locked .blurred {
+    filter: blur(6px);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* --------- Coupon Overlay Content --------- */
+.coupon-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: var(--radius-large);
+}
+
+.coupon-overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    max-width: 420px;
+    padding: 1.5rem;
+}
+
+.overlay-text {
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.overlay-text strong {
+    color: var(--primary);
+}
+
+.overlay-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* --------- Comments --------- */
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.comment-card {
+    display: flex;
+    gap: 1rem;
+    background: white;
+    padding: 1.25rem;
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Avatar */
+.comment-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-avatar.placeholder {
+    background: var(--muted);
+}
+
+/* Content */
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.comment-footer {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.comment-footer i {
+    color: #ff4ab7;
+}
+
+/* --------- Locked State --------- */
+.comments-locked {
+    position: relative;
+}
+
+.comments-locked .blurred {
+    filter: blur(6px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.comment-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: var(--radius-large);
+}
+
+.comment-overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    max-width: 420px;
+    padding: 1.5rem;
+}
+
+/* --------- Comment Controls (single row) --------- */
+.comment-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    padding: 1rem;
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 1.5rem;
+}
+
+/* Avatar */
+.comment-controls .comment-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.comment-controls .field {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Textarea */
+#comment-input {
+    flex: 1;
+    min-height: 48px;
+    max-height: 120px;
+    resize: vertical;
+}
+
+/* Post button */
+#comment-submit {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Sort dropdown */
+.comment-controls .comment-sort {
+    flex-shrink: 0;
+    max-width: 160px;
+}
+
+/* --------- Map --------- */
+.map-section {
+    overflow: hidden;
+}
+
+#business-map {
+    width: 100%;
+    height: 320px;
+    border-radius: var(--radius-large);
+}
+
+.custom-marker {
+    background: var(--primary);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 900px) {
+    .business-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .business-media img {
+        position: static;
+    }
+
+    .business-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .comment-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #comment-submit,
+    .comment-sort {
+        align-self: flex-end;
+    }
+
+    .comment-controls .comment-avatar {
+        align-self: flex-start;
+    }
+}

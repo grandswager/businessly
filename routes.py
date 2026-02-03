@@ -20,8 +20,6 @@ def index():
     max_distance = request.args.get("distance", type=int) or 10
     min_rating = request.args.get("rating", type=int) or 0
 
-    print(query, category, max_distance, min_rating)
-
     if not user_lat or not user_lng:
         user_lat, user_lng = 43.892958, -79.228599
 
@@ -40,6 +38,32 @@ def index():
     businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, user_query=query, max_distance_km=max_distance, min_rating=min_rating, categories=categories)
 
     return render_template("index.html", businesses=businesses, address=user_location)
+
+@app.route("/businesses/<path:business_uuid>")
+def businesses(business_uuid):
+    business = db.get_business_info(business_uuid)
+    user = get_current_user()
+
+    processed_comments = []
+
+    if business and business.get("comments"):
+        for _, comment in business["comments"].items():
+            author = db.get_user_by_uuid(comment["author_uuid"])
+
+            # Skip if author doesn't exist
+            if not author:
+                continue
+
+            processed_comments.append({
+                "author_name": author.get("name"),
+                "author_picture": author.get("picture"),
+                "comment": comment["comment"],
+                "likes": int(comment.get("likes", 0)),
+                "created": comment["created"]
+            })
+
+    return render_template("businesses.html", business=business, uuid=business_uuid, comments=processed_comments, current_user=user)
+
 
 @app.route("/login")
 def login():

@@ -103,7 +103,7 @@
             <div class="explore-grid">
                 {% if businesses %}
                     {% for business in businesses %}
-                        <article class="business-card">
+                        <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
                             <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
 
                             <div class="business-content">
@@ -131,7 +131,7 @@
                                     </span>
                                 </div>
                             </div>
-                        </article>
+                        </article></a>
                     {% endfor %}
                 {% endif %}
             </div>

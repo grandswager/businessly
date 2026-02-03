@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ business.name }} - Businessly</title>
+    <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    {% include "navbar.html" %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/businesses.css') }}" />
+</head>
+
+<body>
+    <main class="page-container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        {% if business == None %}
+            <section class="no_business-card">
+                <h1>Business not found</h1>
+                <p>
+                    We couldn't find a business with the ID:
+                    <span class="caption">{{ uuid }}</span>
+                </p><br>
+
+                <button type="button" class="btn primary" onclick="window.location.href='/'">Browse Businesses</a>
+            </section>
+        {% else %}
+            <section class="business-layout">
+
+                <div class="business-media">
+                    <img src="{{ business.image_url }}" alt="{{ business.name }}">
+                </div>
+
+                <div class="business-content">
+                    <h1>{{ business.name }}</h1>
+
+                    {% set rating = (business.combined_rating / business.users_rated) if business.users_rated else 0 %}
+
+                    <div class="badge-row">
+                        <span class="badge primary">{{ business.category }}</span>
+                        <span class="badge info"><i class="fa-regular fa-bookmark"></i> {{ business.bookmarks }}</span>
+                        <span class="badge muted"><i class="fa-solid fa-star"></i> {{ rating | round(1) }}</span>
+                    </div>
+
+                    <p class="body-text">
+                        {{ business.description }}
+                    </p>
+
+                    <div class="business-meta">
+                        <p class="caption">
+                            <strong>Address</strong><br>
+                            {{ business.address }}<br>
+                            {{ business.city }}, {{ business.province }} {{ business.postal_code }}
+                        </p>
+
+                        <p class="caption">
+                            <strong>Phone</strong><br>
+                            {{ business.phone }}
+                        </p>
+
+                        {% if business.socials.instagram or business.socials.website %}
+                        <p class="caption">
+                            <strong>Social Media</strong><br>
+                            {% if business.socials.instagram %}<i class="fa-brands fa-instagram"></i> {{ business.socials.instagram }}<br>{% endif %}
+                            {% if business.socials.website %}<i class="fa-solid fa-globe"></i> {{ business.socials.website }}{% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="map-section">
+                <h2>Map</h2>
+
+                <div
+                    id="business-map"
+                    data-lat="{{ business.location.coordinates.1 }}"
+                    data-lng="{{ business.location.coordinates.0 }}"
+                    data-name="{{ business.name }}">
+                </div><br>
+                
+                <p class="caption">Source: Leaflet | &copy; OpenStreetMap contributors</p>
+            </section>
+
+            <section class="coupons-section">
+                <h2>Coupons</h2>
+
+                {% if current_user %}
+                    {% if business.coupons %}
+                        <div class="coupon-grid">
+                            {% for _, coupon in business.coupons.items() %}
+                                <div class="coupon-card">
+                                    <div class="coupon-header">
+                                        <h3>{{ coupon.name }}</h3>
+                                        <span class="badge info">
+                                            {{ (coupon.discount * 100) | int }}% OFF
+                                        </span>
+                                    </div>
+
+                                    <p class="body-text">
+                                        {{ coupon.description }}
+                                    </p>
+
+                                    <p class="caption">
+                                        Expires:
+                                        {{ coupon.expiry.strftime('%b %d, %Y') }}
+                                    </p>
+
+                                    <div class="coupon-code">
+                                        <span>{{ coupon.code }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="caption">No active coupons available.</p>
+                    {% endif %}
+                {% else %}
+                    <!-- Locked / teaser state -->
+                    <div class="coupon-locked">
+                        <div class="coupon-grid blurred">
+                            <div class="coupon-card">
+                                <div class="coupon-header">
+                                    <h3>Member Exclusive Coupon</h3>
+                                    <span class="badge info">40% OFF</span>
+                                </div>
+
+                                <p class="body-text">
+                                    Sign up to unlock exclusive deals from this business.
+                                </p>
+
+                                <div class="coupon-code">
+                                    <span>••••••••••</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="coupon-overlay">
+                            <div class="coupon-overlay-content">
+                                <p class="overlay-text">Login or sign up to discover many amazing deals from thousands of businesses like <strong>{{ business.name }}</strong>!</p>
+
+                                <div class="overlay-actions">
+                                    <a href="/login" class="btn primary header-btn" style="text-decoration: none;">
+                                        Login
+                                    </a>
+                                    <a href="/login?signup" class="btn outline header-btn" style="text-decoration: none;">
+                                        Sign Up
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="comments-section">
+                <h2>Reviews</h2>
+
+                {% if current_user %}
+                    {% if current_user.type != "business" %}
+                        <section class="comment-controls">
+                            <img src="{{ current_user.picture }}" class="comment-avatar">
+                            <span class="field"><textarea id="comment-input" placeholder="Write a review..."></textarea></span>
+                            <button id="comment-submit" class="btn primary">Post</button>
+                            <div class="comment-sort field">
+                                <select id="sort-comments">
+                                    <option value="newest">Newest</option>
+                                    <option value="most_helpful">Most Helpful</option>
+                                </select>
+                                <label>Sort by</label>
+                            </div>
+                        </section>
+                    {% endif %}
+
+                    <!-- Comment list -->
+                    <div class="comment-list" id="comment-list">
+                        {% for comment in comments %}
+                            <section class="comment-card" data-created="{{ comment.created.isoformat() }}" data-likes="{{ comment.likes }}" style="margin-bottom: 0;">
+                                <img src="{{ comment.author_picture }}" alt="{{ comment.author_name }}" class="comment-avatar">
+                                <div class="comment-content">
+                                    <div class="comment-header">
+                                        <strong>{{ comment.author_name }}</strong>
+                                        <span class="caption">{{ comment.created.strftime('%b %d, %Y') }}</span>
+                                    </div>
+                                    <p class="body-text">{{ comment.comment }}</p>
+                                    <div class="comment-footer">
+                                        <i class="fa-regular fa-heart comment-like" style="cursor:pointer;"></i>
+                                        <span class="comment-likes">{{ comment.likes }}</span>
+                                    </div>
+                                </div>
+                            </section>
+                        {% endfor %}
+
+                    </div>
+
+                    {% if not comments and current_user.type != "business" %}<p class="caption">Be the first to leave a review!</p>{% endif %}
+                    {% if current_user.type == "business" %}{% if comments %}<br>{% endif %}<p class="caption">Businesses cannot leave reviews. Only customers can leave reviews.</p>{% endif %}
+                {% else %}
+                    <!-- Locked state -->
+                    <div class="comments-locked">
+                        <div class="comment-list blurred">
+                            <div class="comment-card">
+                                <div class="comment-avatar placeholder"></div>
+                                <div class="comment-content">
+                                    <div class="comment-header">
+                                        <strong>Verified User</strong>
+                                    </div>
+                                    <p class="body-text">
+                                        This place is amazing — great service and prices!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comment-overlay">
+                            <div class="comment-overlay-content">
+                                <p class="overlay-text">
+                                    Login or sign up to read and write reviews for
+                                    <strong>{{ business.name }}</strong>.
+                                </p>
+
+                                <div class="overlay-actions">
+                                    <a href="/login" class="btn primary header-btn" style="text-decoration: none;">
+                                        Login
+                                    </a>
+                                    <a href="/login?signup" class="btn outline header-btn" style="text-decoration: none;">
+                                        Sign Up
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </section>
+        {% endif %}
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const mapEl = document.getElementById("business-map");
+            if (!mapEl) return;
+
+            const lat = parseFloat(mapEl.dataset.lat);
+            const lng = parseFloat(mapEl.dataset.lng);
+            const name = mapEl.dataset.name;
+
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            const map = L.map(mapEl, {
+                zoomControl: false,
+                scrollWheelZoom: false,
+                attributionControl: false
+            }).setView([lat, lng], 15);
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "&copy; OpenStreetMap contributors",
+                maxZoom: 19
+            }).addTo(map);
+
+            // Custom marker icon
+            const markerIcon = L.divIcon({
+                className: "",
+                html: '<div class="custom-marker"></div>',
+                iconSize: [18, 18],
+                iconAnchor: [9, 9]
+            });
+
+            L.marker([lat, lng], { icon: markerIcon })
+                .addTo(map)
+                .bindPopup(`<strong>${name}</strong>`)
+                .openPopup();
+        });
+    </script>
+</body>
+</html>
