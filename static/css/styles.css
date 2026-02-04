@@ -337,7 +337,10 @@ img:hover {
 .badge.secondary { background: var(--secondary); }
 .badge.danger { background: var(--danger); }
 .badge.info { background: var(--info); color: #333; }
+.badge.outline { background: white; border: 2px solid var(--primary); color: var(--primary); box-shadow: none; }
 .badge.muted { background: var(--muted); color: #333; }
+
+.badge.outline:hover { background: rgba(48, 37, 217, 0.05); box-shadow: 0 2px 6px rgba(0,0,0,0.10); }
 
 /* ---------------- Switches ---------------- */
 .switch {

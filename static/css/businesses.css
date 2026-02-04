@@ -304,6 +304,37 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
+/* --------- Rating Stars --------- */
+.rating-stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 1.8rem;
+    margin: 1.5rem 0;
+    flex-direction: row-reverse;
+}
+
+.rating-stars input {
+    display: none;
+}
+
+.rating-stars label {
+    font-size: 1.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: transform 0.15s, color 0.15s;
+}
+
+.rating-stars label:hover,
+.rating-stars label:hover ~ label {
+    color: #fbbc04;
+    transform: scale(1.1);
+}
+
+.rating-stars input:checked ~ label {
+    color: #fbbc04;
+}
+
 @media (max-width: 900px) {
     .business-layout {
         grid-template-columns: 1fr;
