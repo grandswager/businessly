@@ -49,13 +49,17 @@
                     <div style="margin-bottom: 0;">
                         <div class="badge-row">
                             <span class="badge primary">{{ business.category }}</span>
-                            <span class="badge info"><i class="fa-regular fa-bookmark"></i> {{ business.bookmarks }}</span>
+                            <span class="badge info" id="bookmarks"><i class="fa-regular fa-bookmark"></i> {{ business.bookmarks }}</span>
                             <span class="badge muted"><i class="fa-solid fa-star"></i> {{ rating | round(1) }}</span>
                         </div>
 
                         {% if current_user and current_user.type == "standard" %}
                         <div class="badge-row" style="cursor: pointer; margin-top: 0.5rem;">
+                            {% if business.uuid in current_user.bookmarks %}
+                            <span class="badge outline" id="bookmarkBtn"><i class="fa-solid fa-bookmark"></i> Bookmarked</span>
+                            {% else %}
                             <span class="badge outline" id="bookmarkBtn"><i class="fa-regular fa-bookmark"></i> Bookmark</span>
+                            {% endif %}
                             <span class="badge primary" onclick="openRatingModal()"><i class="fa-solid fa-star"></i> Rate</span>
                         </div>
                         {% elif current_user and current_user.type == "business" %}
@@ -299,13 +303,37 @@
             }
         });
 
-        document.getElementById("bookmarkBtn")?.addEventListener("click", () => {
-            fetch("/businesses/{{ business.uuid }}/bookmark", {
-                method: "POST"
-            }).then(() => {
-                document.getElementById("bookmarkBtn").innerHTML =
-                    '<i class="fa-solid fa-bookmark"></i> Bookmarked';
-            });
+        document.getElementById("bookmarkBtn")?.addEventListener("click", async () => {
+            try {
+                const res = await fetch("/businesses/{{ business.uuid }}/bookmark", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Request failed");
+                }
+
+                const data = await res.json();
+
+                const btn = document.getElementById("bookmarkBtn");
+                const label = document.getElementById("bookmarks");
+
+                if (data.data.bookmarked) {
+                    btn.innerHTML = '<i class="fa-solid fa-bookmark"></i> Bookmarked';
+                    label.innerHTML = '<i class="fa-regular fa-bookmark"></i> ' + data.data.business_bookmarks;
+                    btn.classList.add("active");
+                } else {
+                    btn.innerHTML = '<i class="fa-regular fa-bookmark"></i> Bookmark';
+                    label.innerHTML = '<i class="fa-regular fa-bookmark"></i> ' + data.data.business_bookmarks;
+                    btn.classList.remove("active");
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
         });
 
         document.addEventListener("DOMContentLoaded", () => {

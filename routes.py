@@ -1,7 +1,7 @@
 import requests
 import uuid
 from datetime import datetime, timezone
-from flask import redirect, url_for, session, request, render_template, flash, jsonify
+from flask import abort, redirect, url_for, session, request, render_template, flash, jsonify
 from app import app, RECAPTCHA_SITE, RECAPTCHA_SECRET, google
 from auth_utils import get_current_user, require_business_user
 from services.DatabaseService import db
@@ -39,7 +39,7 @@ def index():
 
     return render_template("index.html", businesses=businesses, address=user_location)
 
-@app.route("/businesses/<path:business_uuid>")
+@app.route("/businesses/<string:business_uuid>")
 def businesses(business_uuid):
     business = db.get_business_info(business_uuid)
     user = get_current_user()
@@ -50,7 +50,6 @@ def businesses(business_uuid):
         for _, comment in business["comments"].items():
             author = db.get_user_by_uuid(comment["author_uuid"])
 
-            # Skip if author doesn't exist
             if not author:
                 continue
 
@@ -64,6 +63,23 @@ def businesses(business_uuid):
 
     return render_template("businesses.html", business=business, uuid=business_uuid, comments=processed_comments, current_user=user)
 
+@app.route("/businesses/<string:business_uuid>/bookmark", methods=["POST"])
+def businesses_bookmark(business_uuid):
+    business = db.get_business_info(business_uuid)
+    user = get_current_user()
+
+    if not business or not user or user["type"] != "standard":
+        abort(400)
+
+    result = db.bookmark_business(user["uuid"], business_uuid)
+
+    if not result:
+        abort(400)
+
+    return {
+        "success": True,
+        "data": result
+    }, 200
 
 @app.route("/login")
 def login():
