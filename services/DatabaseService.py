@@ -81,3 +81,44 @@ class db:
                 "business_bookmarks": business["bookmarks"],
                 "business_uuid": business_uuid
             }
+
+    @staticmethod
+    def rate_business(user_uuid: str, business_uuid: str, rating: int):
+        if rating < 1 or rating > 5:
+            return None
+
+        user = users.find_one({"uuid": user_uuid}, {"rated": 1})
+
+        if not user:
+            return None
+
+        rated = user.get("rated", {})
+        previous_rating = rated.get(business_uuid)
+
+        if previous_rating is not None:
+            users.update_one({"uuid": user_uuid}, {"$set": {f"rated.{business_uuid}": rating}})
+
+            business = business_profiles.find_one_and_update({"uuid": business_uuid}, {"$inc": {"combined_rating": rating - previous_rating}}, projection={"combined_rating": 1, "users_rated": 1, "_id": 0}, return_document=ReturnDocument.AFTER)
+
+            return {
+                "rated": True,
+                "updated": True,
+                "rating": rating,
+                "business_uuid": business_uuid,
+                "combined_rating": business["combined_rating"],
+                "users_rated": business["users_rated"]
+            }
+
+        else:
+            users.update_one({"uuid": user_uuid}, {"$set": {f"rated.{business_uuid}": rating}})
+
+            business = business_profiles.find_one_and_update({"uuid": business_uuid}, {"$inc": {"combined_rating": rating, "users_rated": 1}}, projection={"combined_rating": 1, "users_rated": 1, "_id": 0}, return_document=ReturnDocument.AFTER)
+
+            return {
+                "rated": True,
+                "updated": False,
+                "rating": rating,
+                "business_uuid": business_uuid,
+                "combined_rating": business["combined_rating"],
+                "users_rated": business["users_rated"]
+            }

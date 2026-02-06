@@ -270,7 +270,14 @@
             <form method="POST" action="/businesses/{{ business.uuid }}/rate">
                 <div class="rating-stars">
                     {% for i in range(5, 0, -1) %}
-                        <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" required>
+                        <input
+                            type="radio"
+                            name="rating"
+                            id="star{{ i }}"
+                            value="{{ i }}"
+                            {% if current_user.rated and business.uuid in current_user.rated and current_user.rated[business.uuid] == i %}checked{% endif %}
+                            required
+                        >
                         <label for="star{{ i }}">★</label>
                     {% endfor %}
                 </div>

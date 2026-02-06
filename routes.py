@@ -81,6 +81,30 @@ def businesses_bookmark(business_uuid):
         "data": result
     }, 200
 
+@app.route("/businesses/<string:business_uuid>/rate", methods=["POST"])
+def businesses_rate(business_uuid):
+    business = db.get_business_info(business_uuid)
+    user = get_current_user()
+
+    if not business or not user or user["type"] != "standard":
+        abort(403)
+
+    if not request.form.get("rating").isdigit():
+        abort(400)
+
+    rating = int(request.form.get("rating"))
+
+    if rating > 5 or rating < 1:
+        abort(400)
+
+    result = db.rate_business(user["uuid"], business_uuid, rating)
+
+    if not result:
+        abort(400)
+
+    flash(f"Successfully rated {business['name']} {rating} stars!", "success")
+    return redirect(f"/businesses/{business_uuid}")
+
 @app.route("/login")
 def login():
     if get_current_user():
