@@ -37,7 +37,16 @@ def index():
 
     businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, user_query=query, max_distance_km=max_distance, min_rating=min_rating, categories=categories)
 
-    return render_template("index.html", businesses=businesses, address=user_location)
+    if user:
+        bookmarks = user["bookmarks"]
+        bookmarked_businesses = []
+
+        for bookmark in bookmarks:
+            bookmarked_businesses.append(db.get_business_info(bookmark))
+    else:
+        bookmarked_businesses = None
+
+    return render_template("index.html", businesses=businesses, address=user_location, bookmarks=bookmarked_businesses)
 
 @app.route("/businesses/<string:business_uuid>")
 def businesses(business_uuid):

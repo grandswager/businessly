@@ -97,18 +97,17 @@
         </div>
 
         <!-- RIGHT: Explore -->
-        <section class="explore-main">
-            <h2>Explore</h2>
+        <div class="explore-main">
+            {% if bookmarks %}
+            <section id="bookmarks">
+                <h2>Bookmarked</h2>
 
-            <div class="explore-grid">
-                {% if businesses %}
-                    {% for business in businesses %}
+                <div class="explore-grid">
+                    {% for business in bookmarks %}
                         <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
                             <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
 
                             <div class="business-content">
-                                <div><span class="badge muted">{{ business.category }}</span> <span class="badge info"><i class="fa-regular fa-bookmark"></i> {{ business.bookmarks }}</span></div>
-
                                 <h3 class="business-name">
                                     {{ business.name }}
                                 </h3>
@@ -116,31 +115,58 @@
                                 <p class="business-desc">
                                     {{ business.description | truncate(120) }}
                                 </p>
-
-                                <div class="business-rating">
-                                    <div class="stars-display">
-                                        {% set full_stars = business.rating | int %}
-                                        {% set half_star = 1 if business.rating - full_stars >= 0.5 else 0 %}
-                                        {% set empty_stars = 5 - full_stars - half_star %}
-
-                                        {{ "★" * full_stars }}{% if half_star %}☆{% endif %}{{ "☆" * empty_stars }}
-                                    </div>
-
-                                    <span class="rating-value">
-                                        {{ "%.1f"|format(business.rating) }}{% if business.distance_km is defined %} | {{ business.distance_km }} km{% endif %}
-                                    </span>
-                                </div>
                             </div>
                         </article></a>
                     {% endfor %}
-                {% endif %}
-            </div>
-            {% if not businesses %}
-                <p class="empty-state">
-                    No businesses found nearby. Try increasing your distance or adjusting your search filters.
-                </p>
+                </div>
+            </section>
             {% endif %}
-        </section>
+
+            <section>
+                <h2>Explore</h2>
+
+                <div class="explore-grid">
+                    {% if businesses %}
+                        {% for business in businesses %}
+                            <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
+                                <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
+
+                                <div class="business-content">
+                                    <div><span class="badge muted">{{ business.category }}</span> <span class="badge info"><i class="fa-regular fa-bookmark"></i> {{ business.bookmarks }}</span></div>
+
+                                    <h3 class="business-name">
+                                        {{ business.name }}
+                                    </h3>
+
+                                    <p class="business-desc">
+                                        {{ business.description | truncate(120) }}
+                                    </p>
+
+                                    <div class="business-rating">
+                                        <div class="stars-display">
+                                            {% set full_stars = business.rating | int %}
+                                            {% set half_star = 1 if business.rating - full_stars >= 0.5 else 0 %}
+                                            {% set empty_stars = 5 - full_stars - half_star %}
+
+                                            {{ "★" * full_stars }}{% if half_star %}☆{% endif %}{{ "☆" * empty_stars }}
+                                        </div>
+
+                                        <span class="rating-value">
+                                            {{ "%.1f"|format(business.rating) }}{% if business.distance_km is defined %} | {{ business.distance_km }} km{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </article></a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% if not businesses %}
+                    <p class="empty-state">
+                        No businesses found nearby. Try increasing your distance or adjusting your search filters.
+                    </p>
+                {% endif %}
+            </section>
+        </div>
     </main>
 
     <!-- Location Modal -->
@@ -280,6 +306,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             if (hasActiveFilters()) {
+                document.getElementById("bookmarks").style.display = "none";
                 document.getElementById("clearFiltersBtn").style.display = "block";
             }
         });
