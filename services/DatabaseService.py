@@ -150,7 +150,12 @@ class db:
         # Abuse: rate limit (30s)
         for c in comments.values():
             if c["author_uuid"] == user_uuid:
-                if (now - c["created"]).total_seconds() < 30:
+                created = c["created"]
+
+                if created.tzinfo is None:
+                    created = created.replace(tzinfo=timezone.utc)
+                
+                if (now - created).total_seconds() < 30:
                     return "RATE_LIMIT"
 
                 if c["comment"].lower() == text.lower():
