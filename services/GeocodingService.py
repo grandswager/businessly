@@ -8,7 +8,7 @@ class GeocodingService:
     def _sanitize_address(address: str) -> str:
         patterns = [
             r"#\s*\w+",
-            r"\b(unit|suite|apt|apartment|ste)\b\.?\s*\w+",
+            r"\b(unit|suite|apt|apartment|ste|floor|ground)\b\.?\s*\w+",
         ]
 
         cleaned = address.lower()

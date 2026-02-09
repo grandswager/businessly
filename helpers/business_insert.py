@@ -75,10 +75,18 @@ def build_business_object(parsed_data: dict):
         province=parsed_data["province"]
     )
 
+    CATEGORY = "Service"
+
+    users_rated = random.randint(1, 20)
+    ratings = [random.randint(1, 5) for _ in range(users_rated)]
+    combined_rating = sum(ratings)
+
+    bookmarks = random.randint(1, 100)
+
     return {
         "uuid": str(uuid.uuid4()),
         "name": parsed_data["business_name"],
-        "category": "Food",
+        "category": CATEGORY,
         "address": parsed_data["address"],
         "city": parsed_data["city"],
         "province": parsed_data["province"],
@@ -95,9 +103,9 @@ def build_business_object(parsed_data: dict):
             "website": None
         },
         "image_url": parsed_data["image_url"],
-        "combined_rating": 0,
-        "users_rated": 0,
-        "bookmarks": 0,
+        "combined_rating": combined_rating,
+        "users_rated": users_rated,
+        "bookmarks": bookmarks,
         "comments": {},
         "coupons": {}
     }
