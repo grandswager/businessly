@@ -9,53 +9,38 @@ class RecommendationService:
         user_lng: float,
         max_distance_km: float = 10,
         min_rating: float = 0,
-        categories: Optional[List[str]] = None,
-        user_query: Optional[str] = None,
-        limit: int = 20
-    ) -> List[dict]:
+        categories=None,
+        user_query=None,
+        limit: int = 20,
+        offset: int = 0
+    ):
 
-        query = {
-            "location": {
-                "$near": {
-                    "$geometry": {
-                        "type": "Point",
-                        "coordinates": [user_lng, user_lat]
-                    },
-                    "$maxDistance": int(max_distance_km * 1000)
-                }
-            }
-        }
+        pipeline = [{"$geoNear": {"near": {"type": "Point", "coordinates": [user_lng, user_lat]}, "distanceField": "distance_m", "maxDistance": int(max_distance_km * 1000), "spherical": True}},]
 
         if categories:
-            query["category"] = {"$in": categories}
+            pipeline.append({"$match": {"category": {"$in": categories}}})
 
         if user_query:
-            query["$or"] = [
-                {"name": {"$regex": user_query, "$options": "i"}},
-                {"description": {"$regex": user_query, "$options": "i"}},
-            ]
+            pipeline.append({"$match": {"$or": [{"name": {"$regex": user_query, "$options": "i"}}, {"description": {"$regex": user_query, "$options": "i"}}]}})
 
-        results = list(
-            business_profiles.find(query).limit(limit)
-        )
+        pipeline.append({"$facet": {"results": [{"$skip": offset}, {"$limit": limit}], "totalCount": [{"$count": "count"}]}})
+
+        data = list(business_profiles.aggregate(pipeline))[0]
+
+        results = data["results"]
+        total = data["totalCount"][0]["count"] if data["totalCount"] else 0
 
         enriched_results = []
 
         for b in results:
             users_rated = int(b.get("users_rated", 0))
             combined_rating = float(b.get("combined_rating", 0))
-
             rating = (combined_rating / users_rated if users_rated > 0 else 0)
 
             if rating < min_rating:
                 continue
-        
-            distance_km = RecommendationService._distance_km(
-                user_lat,
-                user_lng,
-                b["location"]["coordinates"][1],
-                b["location"]["coordinates"][0]
-            )
+
+            distance_km = RecommendationService._distance_km(user_lat, user_lng, b["location"]["coordinates"][1], b["location"]["coordinates"][0])
 
             b["rating"] = round(rating, 1)
             b["distance_km"] = round(distance_km, 2)
@@ -64,7 +49,8 @@ class RecommendationService:
             enriched_results.append(b)
 
         enriched_results.sort(key=lambda x: x["score"], reverse=True)
-        return enriched_results[:limit]
+
+        return enriched_results, total
 
     @staticmethod
     def _score(business: dict, rating: float, distance_km: float) -> float:

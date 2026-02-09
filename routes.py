@@ -1,3 +1,4 @@
+import math
 import requests
 import uuid
 from datetime import datetime, timezone
@@ -15,6 +16,10 @@ def index():
     user_lng = session.get("user_lng")
     user_location = session.get("user_location") or "Cornell, Markham"
 
+    page = request.args.get("page", default=1, type=int)
+    per_page = 12
+    offset = (page - 1) * per_page
+
     query = request.args.get("query") or None
     category = request.args.get("category") or None
     max_distance = request.args.get("distance", type=int) or 10
@@ -23,30 +28,26 @@ def index():
     if not user_lat or not user_lng:
         user_lat, user_lng = 43.892958, -79.228599
 
-    if category != "none" and category != None:
+    if category and category != "none":
         categories = [category]
-    elif category == "none" or category == None:
-        categories = []
-    elif user:
-        categories = user["categories"]
     else:
         categories = []
-    
-    if max_distance >= 20:
-        max_distance = 20020 # (max distance from one point to another on earth)
 
-    businesses = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, user_query=query, max_distance_km=max_distance, min_rating=min_rating, categories=categories)
+    if max_distance >= 20:
+        max_distance = 20020
+
+    businesses, total = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, user_query=query, max_distance_km=max_distance, min_rating=min_rating, categories=categories, limit=per_page, offset=offset)
+
+    total_pages = math.ceil(total / per_page)
 
     if user:
-        bookmarks = user["bookmarks"]
-        bookmarked_businesses = []
-
-        for bookmark in bookmarks:
-            bookmarked_businesses.append(db.get_business_info(bookmark))
+        bookmarked_businesses = [
+            db.get_business_info(b) for b in user["bookmarks"]
+        ]
     else:
         bookmarked_businesses = None
 
-    return render_template("index.html", businesses=businesses, address=user_location, bookmarks=bookmarked_businesses)
+    return render_template("index.html", businesses=businesses, address=user_location, bookmarks=bookmarked_businesses, page=page, total_pages=total_pages)
 
 @app.route("/businesses/<string:business_uuid>")
 def businesses(business_uuid):
