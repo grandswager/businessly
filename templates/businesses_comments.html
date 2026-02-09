@@ -1,0 +1,115 @@
+<script>
+
+const businessUUID = "{{ business.uuid }}";
+let currentPage = {{ page or 1 }};
+let loading = false;
+
+function bindLikeHandlers(root = document) {
+    root.querySelectorAll(".comment-like").forEach(icon => {
+        if (icon.dataset.bound) return;
+        icon.dataset.bound = "true";
+
+        icon.addEventListener("click", async () => {
+            const card = icon.closest(".comment-card");
+            const commentUUID = card.dataset.uuid;
+
+            try {
+                const res = await fetch(
+                    `/businesses/${businessUUID}/comments/${commentUUID}/like`,
+                    { method: "POST" }
+                );
+
+                if (!res.ok) return;
+
+                const data = await res.json();
+                card.querySelector(".comment-likes").textContent = data.data.likes;
+
+                icon.classList.toggle("fa-solid", data.data.liked);
+                icon.classList.toggle("fa-regular", !data.data.liked);
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+}
+
+document.getElementById("comment-submit")?.addEventListener("click", async () => {
+    const input = document.getElementById("comment-input");
+    const text = input.value.trim();
+    if (!text) return;
+
+    try {
+        const res = await fetch(
+            `/businesses/${businessUUID}/comments`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ comment: text })
+            }
+        );
+
+        if (res.status === 429) {
+            alert("You're commenting too fast. Please wait a bit.");
+            return;
+        }
+
+        if (!res.ok) {
+            alert("Unable to post comment.");
+            return;
+        }
+
+        input.value = "";
+        currentPage = 1;
+        document.getElementById("comment-list").innerHTML = "";
+        loadComments(true);
+
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+async function loadComments(reset = false) {
+    if (loading) return;
+    loading = true;
+
+    const sort = document.getElementById("sort-comments")?.value || "newest";
+
+    try {
+        const res = await fetch(
+            `/businesses/${businessUUID}?page=${currentPage}&sort=${sort}`,
+            { headers: { "X-Partial": "comments" } }
+        );
+
+        if (!res.ok) return;
+
+        const html = await res.text();
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+
+        const newComments = temp.querySelectorAll(".comment-card");
+        const list = document.getElementById("comment-list");
+
+        if (reset) list.innerHTML = "";
+
+        if (newComments.length === 0) return;
+
+        newComments.forEach(c => list.appendChild(c));
+        bindLikeHandlers(list);
+
+        currentPage++;
+
+    } catch (err) {
+        console.error(err);
+    } finally {
+        loading = false;
+    }
+}
+
+document.getElementById("sort-comments")?.addEventListener("change", () => {
+    currentPage = 1;
+    document.getElementById("comment-list").innerHTML = "";
+    loadComments(true);
+});
+
+bindLikeHandlers();
+</script>

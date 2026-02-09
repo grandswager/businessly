@@ -1,7 +1,10 @@
 from pymongo import MongoClient, ReturnDocument
 import os
-from dotenv import load_dotenv
+import uuid
+from better_profanity import profanity
 from bson.objectid import ObjectId
+from datetime import datetime, timezone
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -122,3 +125,93 @@ class db:
                 "combined_rating": business["combined_rating"],
                 "users_rated": business["users_rated"]
             }
+
+    @staticmethod
+    def add_business_comment(business_uuid, user_uuid, text):
+        business = business_profiles.find_one(
+            {"uuid": business_uuid},
+            {"comments": 1}
+        )
+
+        if not business:
+            return None
+
+        comments = business.get("comments")
+
+        if not isinstance(comments, dict):
+            business_profiles.update_one(
+                {"uuid": business_uuid},
+                {"$set": {"comments": {}}}
+            )
+            comments = {}
+
+        now = datetime.now(timezone.utc)
+
+        # Abuse: rate limit (30s)
+        for c in comments.values():
+            if c["author_uuid"] == user_uuid:
+                if (now - c["created"]).total_seconds() < 30:
+                    return "RATE_LIMIT"
+
+                if c["comment"].lower() == text.lower():
+                    return "DUPLICATE"
+
+        comment_uuid = str(uuid.uuid4())
+
+        comment = {
+            "author_uuid": user_uuid,
+            "comment": profanity.censor(text),
+            "likes": 0,
+            "liked_by": [],
+            "created": now
+        }
+
+        business_profiles.update_one(
+            {"uuid": business_uuid},
+            {"$set": {f"comments.{comment_uuid}": comment}}
+        )
+
+        return comment_uuid
+
+    @staticmethod
+    def toggle_comment_like(business_uuid, comment_uuid, user_uuid):
+        path = f"comments.{comment_uuid}"
+
+        business = business_profiles.find_one(
+            {"uuid": business_uuid, path: {"$exists": True}},
+            {path: 1}
+        )
+
+        if not business:
+            return None
+
+        comment = business["comments"][comment_uuid]
+
+        if user_uuid in comment.get("liked_by", []):
+            business_profiles.update_one(
+                {"uuid": business_uuid},
+                {
+                    "$pull": {f"{path}.liked_by": user_uuid},
+                    "$inc": {f"{path}.likes": -1}
+                }
+            )
+            liked = False
+        else:
+            business_profiles.update_one(
+                {"uuid": business_uuid},
+                {
+                    "$addToSet": {f"{path}.liked_by": user_uuid},
+                    "$inc": {f"{path}.likes": 1}
+                }
+            )
+            liked = True
+
+        updated = business_profiles.find_one(
+            {"uuid": business_uuid},
+            {f"{path}.likes": 1}
+        )
+
+        return {
+            "liked": liked,
+            "likes": updated["comments"][comment_uuid]["likes"]
+        }

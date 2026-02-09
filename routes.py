@@ -53,24 +53,39 @@ def businesses(business_uuid):
     business = db.get_business_info(business_uuid)
     user = get_current_user()
 
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
+    sort = request.args.get("sort", "newest")
+
     processed_comments = []
 
     if business and business.get("comments"):
-        for _, comment in business["comments"].items():
-            author = db.get_user_by_uuid(comment["author_uuid"])
+        comments = list(business["comments"].items())
 
+        if sort == "most_helpful":
+            comments.sort(key=lambda x: (-x[1]["likes"], -x[1]["created"].timestamp()))
+        else:
+            comments.sort(key=lambda x: x[1]["created"], reverse=True)
+
+        start = (page - 1) * per_page
+        end = start + per_page
+
+        for comment_uuid, comment in comments[start:end]:
+            author = db.get_user_by_uuid(comment["author_uuid"])
             if not author:
                 continue
 
             processed_comments.append({
-                "author_name": author.get("name"),
-                "author_picture": author.get("picture"),
+                "uuid": comment_uuid,
+                "author_name": author["name"],
+                "author_picture": author["picture"],
                 "comment": comment["comment"],
-                "likes": int(comment.get("likes", 0)),
+                "likes": int(comment["likes"]),
+                "liked": user and user["uuid"] in comment.get("liked_by", []),
                 "created": comment["created"]
             })
 
-    return render_template("businesses.html", business=business, uuid=business_uuid, comments=processed_comments, current_user=user)
+    return render_template("businesses.html",business=business, uuid=business_uuid, comments=processed_comments, current_user=user, page=page)
 
 @app.route("/businesses/<string:business_uuid>/bookmark", methods=["POST"])
 def businesses_bookmark(business_uuid):
@@ -113,6 +128,47 @@ def businesses_rate(business_uuid):
 
     flash(f"Successfully rated {business['name']} {rating} stars!", "success")
     return redirect(f"/businesses/{business_uuid}")
+
+@app.route("/businesses/<string:business_uuid>/comments", methods=["POST"])
+def post_comment(business_uuid):
+    user = get_current_user()
+    business = db.get_business_info(business_uuid)
+
+    if not user or user["type"] != "standard" or not business:
+        abort(400)
+
+    data = request.get_json()
+    text = (data.get("comment") or "").strip()
+
+    if not text or len(text) > 1000:
+        abort(400)
+
+    result = db.add_business_comment(business_uuid, user["uuid"], text)
+
+    if result == "RATE_LIMIT":
+        return jsonify({"error": "You're commenting too fast."}), 429
+
+    if result == "DUPLICATE":
+        return jsonify({"error": "Duplicate comment detected."}), 400
+
+    if not result:
+        abort(400)
+
+    return {"success": True}, 201
+
+@app.route("/businesses/<string:business_uuid>/comments/<string:comment_uuid>/like", methods=["POST"])
+def like_comment(business_uuid, comment_uuid):
+    user = get_current_user()
+
+    if not user or user["type"] != "standard":
+        abort(400)
+
+    result = db.toggle_comment_like(business_uuid, comment_uuid, user["uuid"])
+
+    if not result:
+        abort(400)
+
+    return {"success": True, "data": result}, 200
 
 @app.route("/login")
 def login():
@@ -252,7 +308,7 @@ def signup_redirect():
                 "combined_rating": 0,
                 "users_rated": 0,
                 "bookmarks": 0,
-                "comments": [],
+                "comments": {},
                 "coupons": {}
             }
 

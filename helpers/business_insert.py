@@ -98,7 +98,7 @@ def build_business_object(parsed_data: dict):
         "combined_rating": 0,
         "users_rated": 0,
         "bookmarks": 0,
-        "comments": [],
+        "comments": {},
         "coupons": {}
     }
 

@@ -202,7 +202,7 @@
                     <!-- Comment list -->
                     <div class="comment-list" id="comment-list">
                         {% for comment in comments %}
-                            <section class="comment-card" data-created="{{ comment.created.isoformat() }}" data-likes="{{ comment.likes }}" style="margin-bottom: 0;">
+                            <section class="comment-card" data-uuid="{{ comment.uuid }}" data-created="{{ comment.created.isoformat() }}" data-likes="{{ comment.likes }}" style="margin-bottom: 0;">
                                 <img src="{{ comment.author_picture }}" alt="{{ comment.author_name }}" class="comment-avatar">
                                 <div class="comment-content">
                                     <div class="comment-header">
@@ -211,7 +211,7 @@
                                     </div>
                                     <p class="body-text">{{ comment.comment }}</p>
                                     <div class="comment-footer">
-                                        <i class="fa-regular fa-heart comment-like" style="cursor:pointer;"></i>
+                                        <i class="{{ 'fa-solid' if comment.liked else 'fa-regular' }} fa-heart comment-like" style="cursor: pointer;"></i>
                                         <span class="comment-likes">{{ comment.likes }}</span>
                                     </div>
                                 </div>
@@ -378,5 +378,6 @@
                 .openPopup();
         });
     </script>
+    {% include "businesses_comments.html" %}
 </body>
 </html>
