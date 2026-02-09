@@ -1,7 +1,7 @@
 <script>
-
 const businessUUID = "{{ business.uuid }}";
 let currentPage = {{ page or 1 }};
+let totalPages = parseInt(document.getElementById("comment-total-pages")?.dataset.total || 1);
 let loading = false;
 
 function bindLikeHandlers(root = document) {
@@ -14,59 +14,75 @@ function bindLikeHandlers(root = document) {
             const commentUUID = card.dataset.uuid;
 
             try {
-                const res = await fetch(
-                    `/businesses/${businessUUID}/comments/${commentUUID}/like`,
-                    { method: "POST" }
-                );
-
+                const res = await fetch(`/businesses/${businessUUID}/comments/${commentUUID}/like`, { method: "POST" });
                 if (!res.ok) return;
 
                 const data = await res.json();
                 card.querySelector(".comment-likes").textContent = data.data.likes;
-
                 icon.classList.toggle("fa-solid", data.data.liked);
                 icon.classList.toggle("fa-regular", !data.data.liked);
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         });
     });
 }
 
-document.getElementById("comment-submit")?.addEventListener("click", async () => {
-    const input = document.getElementById("comment-input");
-    const text = input.value.trim();
-    if (!text) return;
+function renderPagination() {
+    const container = document.getElementById("comment-navigation");
+    if (!container) return;
+    container.innerHTML = "";
 
-    try {
-        const res = await fetch(
-            `/businesses/${businessUUID}/comments`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ comment: text })
-            }
-        );
+    if (totalPages <= 1) return;
 
-        if (res.status === 429) {
-            alert("You're commenting too fast. Please wait a bit.");
-            return;
-        }
+    container.style.display = "flex";
 
-        if (!res.ok) {
-            alert("Unable to post comment.");
-            return;
-        }
-
-        input.value = "";
-        currentPage = 1;
-        document.getElementById("comment-list").innerHTML = "";
-        loadComments(true);
-
-    } catch (err) {
-        console.error(err);
+    if (currentPage > 1) {
+        const prev = document.createElement("a");
+        prev.className = "page-nav";
+        prev.innerHTML = `<i class="fa-solid fa-chevron-left"></i> Prev`;
+        prev.addEventListener("click", () => { currentPage--; loadComments(true); });
+        container.appendChild(prev);
     }
-});
+
+    const pageLinks = [];
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, currentPage + 2);
+
+    if (currentPage <= 3) end = Math.min(5, totalPages);
+    if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
+
+    if (start > 1) {
+        pageLinks.push(1);
+        if (start > 2) pageLinks.push('...');
+    }
+
+    for (let p = start; p <= end; p++) pageLinks.push(p);
+
+    if (end < totalPages) {
+        if (end < totalPages - 1) pageLinks.push('...');
+        pageLinks.push(totalPages);
+    }
+
+    pageLinks.forEach(p => {
+        const link = document.createElement("a");
+        if (p === '...') {
+            link.textContent = p;
+            link.className = "page-ellipsis";
+        } else {
+            link.textContent = p;
+            link.className = `page-number${p === currentPage ? " active" : ""}`;
+            link.addEventListener("click", () => { currentPage = p; loadComments(true); });
+        }
+        container.appendChild(link);
+    });
+
+    if (currentPage < totalPages) {
+        const next = document.createElement("a");
+        next.className = "page-nav";
+        next.innerHTML = `Next <i class="fa-solid fa-chevron-right"></i>`;
+        next.addEventListener("click", () => { currentPage++; loadComments(true); });
+        container.appendChild(next);
+    }
+}
 
 async function loadComments(reset = false) {
     if (loading) return;
@@ -75,11 +91,7 @@ async function loadComments(reset = false) {
     const sort = document.getElementById("sort-comments")?.value || "newest";
 
     try {
-        const res = await fetch(
-            `/businesses/${businessUUID}?page=${currentPage}&sort=${sort}`,
-            { headers: { "X-Partial": "comments" } }
-        );
-
+        const res = await fetch(`/businesses/${businessUUID}?page=${currentPage}&sort=${sort}`, { headers: { "X-Partial": "comments" } });
         if (!res.ok) return;
 
         const html = await res.text();
@@ -90,20 +102,40 @@ async function loadComments(reset = false) {
         const list = document.getElementById("comment-list");
 
         if (reset) list.innerHTML = "";
-
-        if (newComments.length === 0) return;
-
         newComments.forEach(c => list.appendChild(c));
         bindLikeHandlers(list);
 
-        currentPage++;
+        const newTotal = temp.querySelector("#comment-total-pages")?.dataset.total;
+        if (newTotal) totalPages = parseInt(newTotal);
 
-    } catch (err) {
-        console.error(err);
-    } finally {
-        loading = false;
-    }
+        renderPagination();
+
+    } catch (err) { console.error(err); }
+    finally { loading = false; }
 }
+
+document.getElementById("comment-submit")?.addEventListener("click", async () => {
+    const input = document.getElementById("comment-input");
+    const text = input.value.trim();
+    if (!text) return;
+
+    try {
+        const res = await fetch(`/businesses/${businessUUID}/comments`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ comment: text })
+        });
+
+        if (res.status === 429) { alert("You're commenting too fast."); return; }
+        if (!res.ok) { alert("Unable to post comment."); return; }
+
+        input.value = "";
+        currentPage = 1;
+        document.getElementById("comment-list").innerHTML = "";
+        loadComments(true);
+
+    } catch (err) { console.error(err); }
+});
 
 document.getElementById("sort-comments")?.addEventListener("change", () => {
     currentPage = 1;
@@ -112,4 +144,5 @@ document.getElementById("sort-comments")?.addEventListener("change", () => {
 });
 
 bindLikeHandlers();
+renderPagination();
 </script>

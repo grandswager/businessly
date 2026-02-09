@@ -217,8 +217,10 @@
                                 </div>
                             </section>
                         {% endfor %}
-
                     </div>
+
+                    <div id="comment-navigation" class="pagination" style="display: none;"></div>
+                    <span id="comment-total-pages" data-total="{{ total_pages }}" style="display:none;"></span>
 
                     {% if not comments and current_user.type != "business" %}<p class="caption">Be the first to leave a review!</p>{% endif %}
                     {% if current_user.type == "business" %}{% if comments %}<br>{% endif %}<p class="caption">Businesses cannot leave reviews. Only customers can leave reviews.</p>{% endif %}

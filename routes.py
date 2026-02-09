@@ -59,9 +59,12 @@ def businesses(business_uuid):
     sort = request.args.get("sort", "newest")
 
     processed_comments = []
+    total_pages = 0
 
     if business and business.get("comments"):
         comments = list(business["comments"].items())
+
+        total_pages = math.ceil(len(comments) / per_page)
 
         if sort == "most_helpful":
             comments.sort(key=lambda x: (-x[1]["likes"], -x[1]["created"].timestamp()))
@@ -86,7 +89,7 @@ def businesses(business_uuid):
                 "created": comment["created"]
             })
 
-    return render_template("businesses.html",business=business, uuid=business_uuid, comments=processed_comments, current_user=user, page=page)
+    return render_template("businesses.html",business=business, uuid=business_uuid, comments=processed_comments, current_user=user, page=page, total_pages=total_pages)
 
 @app.route("/businesses/<string:business_uuid>/bookmark", methods=["POST"])
 def businesses_bookmark(business_uuid):

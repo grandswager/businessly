@@ -284,6 +284,62 @@
     max-width: 160px;
 }
 
+/* --------- Pagination --------- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.2rem;
+}
+
+.pagination a {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-large);
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: white;
+    color: var(--text-color);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+}
+
+.pagination a:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    text-decoration: none;
+}
+
+/* Page numbers */
+.page-number {
+    padding: 0 0.75rem;
+}
+
+/* Active page */
+.page-number.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-medium);
+    pointer-events: none;
+}
+
+/* Prev / Next */
+.page-nav {
+    gap: 0.4rem;
+    background: var(--muted);
+    color: var(--secondary);
+}
+
+.page-nav i {
+    font-size: 0.75rem;
+}
+
 /* --------- Map --------- */
 .map-section {
     overflow: hidden;
