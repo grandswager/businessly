@@ -54,6 +54,29 @@ class db:
         )
 
     @staticmethod
+    def add_recent_business(user_uuid: str, business_uuid: str):
+        user = users.find_one({"uuid": user_uuid}, {"recently_viewed": 1})
+
+        if not user:
+            return None
+
+        recent_businesses = user.get("recently_viewed", [])
+
+        if business_uuid in recent_businesses:
+            recent_businesses.remove(business_uuid)
+
+        recent_businesses.insert(0, business_uuid)
+
+        recent_businesses = recent_businesses[:10]
+
+        users.update_one(
+            {"uuid": user_uuid},
+            {"$set": {"recently_viewed": recent_businesses}}
+        )
+
+        return recent_businesses
+
+    @staticmethod
     def bookmark_business(user_uuid: str, business_uuid: str):
         user = users.find_one({"uuid": user_uuid}, {"bookmarks": 1})
 

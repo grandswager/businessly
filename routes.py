@@ -47,12 +47,21 @@ def index():
     else:
         bookmarked_businesses = None
 
-    return render_template("index.html", businesses=businesses, address=user_location, bookmarks=bookmarked_businesses, page=page, total_pages=total_pages)
+    if user:
+        recent_businesses = [
+            db.get_business_info(b) for b in user["recently_viewed"]
+        ]
+    else:
+        recent_businesses = None
+
+    return render_template("index.html", businesses=businesses, address=user_location, bookmarks=bookmarked_businesses, recently_viewed=recent_businesses, page=page, total_pages=total_pages)
 
 @app.route("/businesses/<string:business_uuid>")
 def businesses(business_uuid):
     business = db.get_business_info(business_uuid)
     user = get_current_user()
+
+    db.add_recent_business(user["uuid"], business_uuid)
 
     page = request.args.get("page", 1, type=int)
     per_page = 10

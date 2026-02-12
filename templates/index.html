@@ -122,6 +122,32 @@
             </section>
             {% endif %}
 
+            {% if recently_viewed %}
+            <section id="recents">
+                <h2>Recently Viewed</h2>
+
+                <div class="explore-grid">
+                    {% for business in recently_viewed %}
+                        <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
+                            <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
+
+                            <div class="business-content">
+                                <div><span class="badge muted">{{ business.category }}</span></div>
+
+                                <h3 class="business-name">
+                                    {{ business.name }}
+                                </h3>
+
+                                <p class="business-desc">
+                                    {{ business.description | truncate(120) }}
+                                </p>
+                            </div>
+                        </article></a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
             <section>
                 <h2>Explore</h2>
 
@@ -330,6 +356,31 @@
                 document.getElementById("bookmarks").style.display = "none";
                 document.getElementById("clearFiltersBtn").style.display = "block";
             }
+        });
+
+        function limitRecentsToOneRow() {
+            const grid = document.querySelector("#recents .explore-grid");
+            if (!grid) return;
+
+            const items = Array.from(grid.children);
+            if (items.length === 0) return;
+
+            const firstTop = items[0].offsetTop;
+
+            items.forEach(item => {
+                if (item.offsetTop > firstTop) {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        window.addEventListener("load", limitRecentsToOneRow);
+        window.addEventListener("resize", () => {
+            // Reset first
+            const items = document.querySelectorAll("#recents .explore-grid > *");
+            items.forEach(item => item.style.display = "");
+
+            limitRecentsToOneRow();
         });
     </script>
 </body>
