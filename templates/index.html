@@ -98,56 +98,6 @@
 
         <!-- RIGHT: Explore -->
         <div class="explore-main">
-            {% if bookmarks %}
-            <section id="bookmarks">
-                <h2>Bookmarked</h2>
-
-                <div class="explore-grid">
-                    {% for business in bookmarks %}
-                        <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
-                            <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
-
-                            <div class="business-content">
-                                <h3 class="business-name">
-                                    {{ business.name }}
-                                </h3>
-
-                                <p class="business-desc">
-                                    {{ business.description | truncate(120) }}
-                                </p>
-                            </div>
-                        </article></a>
-                    {% endfor %}
-                </div>
-            </section>
-            {% endif %}
-
-            {% if recently_viewed %}
-            <section id="recents">
-                <h2>Recently Viewed</h2>
-
-                <div class="explore-grid">
-                    {% for business in recently_viewed %}
-                        <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
-                            <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
-
-                            <div class="business-content">
-                                <div><span class="badge muted">{{ business.category }}</span></div>
-
-                                <h3 class="business-name">
-                                    {{ business.name }}
-                                </h3>
-
-                                <p class="business-desc">
-                                    {{ business.description | truncate(120) }}
-                                </p>
-                            </div>
-                        </article></a>
-                    {% endfor %}
-                </div>
-            </section>
-            {% endif %}
-
             <section>
                 <h2>Explore</h2>
 
@@ -213,6 +163,56 @@
                 </div>
                 {% endif %}
             </section>
+
+            {% if bookmarks %}
+            <section id="bookmarks">
+                <h2>Bookmarked</h2>
+
+                <div class="explore-grid">
+                    {% for business in bookmarks %}
+                        <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
+                            <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
+
+                            <div class="business-content">
+                                <h3 class="business-name">
+                                    {{ business.name }}
+                                </h3>
+
+                                <p class="business-desc">
+                                    {{ business.description | truncate(120) }}
+                                </p>
+                            </div>
+                        </article></a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if recently_viewed %}
+            <section id="recents">
+                <h2>Recently Viewed</h2>
+
+                <div class="explore-grid">
+                    {% for business in recently_viewed %}
+                        <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
+                            <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
+
+                            <div class="business-content">
+                                <div><span class="badge muted">{{ business.category }}</span></div>
+
+                                <h3 class="business-name">
+                                    {{ business.name }}
+                                </h3>
+
+                                <p class="business-desc">
+                                    {{ business.description | truncate(120) }}
+                                </p>
+                            </div>
+                        </article></a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
         </div>
     </main>
 
