@@ -54,6 +54,13 @@ class db:
         )
 
     @staticmethod
+    def update_user_picture(user_uuid: str, picture_url: str):
+        return users.update_one(
+            {"uuid": user_uuid},
+            {"$set": {"picture": picture_url}}
+        )
+
+    @staticmethod
     def add_recent_business(user_uuid: str, business_uuid: str):
         user = users.find_one({"uuid": user_uuid}, {"recently_viewed": 1})
 

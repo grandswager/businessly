@@ -7,7 +7,10 @@ from app import app, RECAPTCHA_SITE, RECAPTCHA_SECRET, google
 from auth_utils import get_current_user, require_business_user
 from services.DatabaseService import db
 from services.GeocodingService import GeocodingService
+from services.ImageStorageService import ImageStorageService
 from services.RecommendationService import RecommendationService
+
+ISS = ImageStorageService()
 
 @app.route("/")
 def index():
@@ -366,6 +369,34 @@ def dashboard():
 
     user = db.get_user_by_id(session["user_id"])
     return render_template("dashboard.html", user=user)
+
+@app.route("/profile/avatar", methods=["POST"])
+def upload_avatar():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+
+    file = request.files.get("avatar")
+    if not file:
+        flash("No file uploaded.", "danger")
+        return redirect("/dashboard")
+
+    try:
+        file_bytes = file.read()
+        new_url = ISS.upload_profile_picture(user["uuid"], file_bytes)
+
+        db.update_user_picture(user["uuid"], new_url)
+
+        flash("Successfully updated profile picture!", "success")
+        return redirect("/dashboard")
+
+    except ValueError as e:
+        flash(str(e), "danger")
+        return redirect("/dashboard")
+
+    except Exception:
+        flash("Something went wrong uploading your image.", "danger")
+        return redirect("/dashboard")
 
 @app.route("/logout")
 def logout():

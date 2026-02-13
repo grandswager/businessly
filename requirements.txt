@@ -5,3 +5,5 @@ python-dotenv
 requests
 uuid
 better-profanity
+cloudinary
+pillow
