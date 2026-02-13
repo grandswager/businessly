@@ -139,6 +139,10 @@
     .user-menu .signed-out {
         display: block;
     }
+
+    .mobile-remove {
+        display: none;
+    }
 }
 
 /* Toggle active class with JS */
