@@ -1,8 +1,25 @@
-dash<br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Businessly</title>
+    <script src="https://kit.fontawesome.com/e60f0fe32a.js" crossorigin="anonymous"></script>
 
-{% if current_user %}
-{{ current_user.name }}<br>
-{{ current_user.categories }}<br>
-{{ current_user.bookmarks }}<br>
-{{ current_user.type }}
-{% endif %}
+    {% include "navbar.html" %}
+</head>
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <section style="max-width: 70%; margin: 0 auto;">
+        <h2>Configure your Account</h2>
+    </section>
+</body>
+</html>

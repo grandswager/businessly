@@ -61,7 +61,8 @@ def businesses(business_uuid):
     business = db.get_business_info(business_uuid)
     user = get_current_user()
 
-    db.add_recent_business(user["uuid"], business_uuid)
+    if user:
+        db.add_recent_business(user["uuid"], business_uuid)
 
     page = request.args.get("page", 1, type=int)
     per_page = 10
