@@ -1,0 +1,187 @@
+/* ---------------- Category Chips ---------------- */
+
+.category-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-chip {
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-large);
+    border: 2px solid var(--muted);
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+    user-select: none;
+}
+
+.category-chip:hover {
+    border-color: var(--primary);
+}
+
+.category-chip.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Selected chips row */
+.selected-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.selected-chip {
+    background: var(--primary);
+    color: white;
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--radius-large);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.selected-chip span {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* -------- Animated Selected Chips -------- */
+
+.selected-chip {
+    animation: chipIn 0.25s ease forwards;
+}
+
+@keyframes chipIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Exit animation */
+.selected-chip.removing {
+    animation: chipOut 0.2s ease forwards;
+}
+
+@keyframes chipOut {
+    to {
+        opacity: 0;
+        transform: scale(0.7) translateY(6px);
+    }
+}
+
+/* -------- Muted Category Chips -------- */
+
+.category-chip.muted {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(0.8);
+}
+
+/* --------- Dashboard Layout --------- */
+.dashboard-wrapper {
+  width: 100%;
+  max-width: 980px;
+  margin: auto;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: var(--radius-large);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+/* --------- Grid Layout --------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* --------- Profile Upload --------- */
+.profile-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  border: 2px dashed var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-circle:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+  display: none;
+}
+
+.avatar-placeholder {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  padding: 1rem;
+  line-height: 1.4;
+}
+
+.profile-upload small {
+  color: var(--secondary);
+  font-size: 0.85rem;
+}
+
+/* --------- Responsive --------- */
+@media (max-width: 860px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-upload {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .avatar-circle {
+    width: 120px;
+    height: 120px;
+  }
+}

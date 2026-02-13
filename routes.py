@@ -353,6 +353,8 @@ def signup_redirect():
         session.pop("new_user")
         session["user_id"] = str(result.inserted_id)
 
+        if account_type == "business": return redirect(url_for("dashboard.html"))
+
         return redirect("/")
 
     return render_template("signup_redirect.html")
