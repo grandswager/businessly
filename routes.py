@@ -31,8 +31,12 @@ def index():
     if not user_lat or not user_lng:
         user_lat, user_lng = 43.892958, -79.228599
 
-    if category and category != "none":
+    if category and category != "none" and category != "all":
         categories = [category]
+    elif category and category == "all":
+        categories = []
+    elif user and user["categories"]:
+        categories = user["categories"]
     else:
         categories = []
 
@@ -396,6 +400,38 @@ def upload_avatar():
 
     except Exception:
         flash("Something went wrong uploading your image.", "danger")
+        return redirect("/dashboard")
+
+@app.route("/dashboard/standard", methods=["POST"])
+def modify_standard():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+    
+    if user["type"] != "standard":
+        flash("Invalid account type. (Error: 401)", "danger")
+    
+    name = request.form.get("name")
+    categories = request.form.getlist("categories") or []
+
+    VALID_CATEGORIES = {"Food", "Service", "Shop", "Health"}
+
+    if not all(cat in VALID_CATEGORIES for cat in categories):
+        flash("Invalid category selection.", "danger")
+        return redirect("/dashboard")
+    
+    try:
+        db.update_standard_profile(user["uuid"], name, categories)
+
+        flash("Successfully updated profile!", "success")
+        return redirect("/dashboard")
+
+    except ValueError as e:
+        flash(str(e), "danger")
+        return redirect("/dashboard")
+
+    except Exception:
+        flash("Something went wrong updating your profile.", "danger")
         return redirect("/dashboard")
 
 @app.route("/logout")

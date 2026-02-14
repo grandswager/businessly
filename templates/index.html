@@ -50,7 +50,12 @@
                     <!-- Category -->
                     <div class="field">
                         <select name="category">
-                            <option value="none" selected>All Categories</option>
+                            {% if current_user %}
+                            <option value="none" selected>Default Categories</option>
+                            <option value="all">All Categories</option>
+                            {% else %}
+                            <option value="all" selected>All Categories</option>
+                            {% endif %}
                             <option value="Food">Food</option>
                             <option value="Shop">Shop</option>
                             <option value="Service">Service</option>
@@ -353,8 +358,9 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             if (hasActiveFilters()) {
-                document.getElementById("bookmarks").style.display = "none";
                 document.getElementById("clearFiltersBtn").style.display = "block";
+                document.getElementById("recents").style.display = "none";
+                document.getElementById("bookmarks").style.display = "none";
             }
         });
 

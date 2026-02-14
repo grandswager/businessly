@@ -61,6 +61,13 @@ class db:
         )
 
     @staticmethod
+    def update_standard_profile(user_uuid: str, name: str, categories: list):
+        return users.update_one(
+            {"uuid": user_uuid},
+            {"$set": {"name": name, "categories": categories}}
+        )
+
+    @staticmethod
     def add_recent_business(user_uuid: str, business_uuid: str):
         user = users.find_one({"uuid": user_uuid}, {"recently_viewed": 1})
 

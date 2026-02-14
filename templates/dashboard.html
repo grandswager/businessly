@@ -45,15 +45,10 @@
                 </form>
 
                 <!-- RIGHT FORM -->
-                <form class="form">
+                <form class="form" action="/dashboard/standard" method="POST">
                     <div class="field">
-                        <input type="text" id="name" placeholder=" " value="{{ user.name }}">
+                        <input type="text" id="name" name="name" placeholder=" " value="{{ user.name }}">
                         <label for="name">Name</label>
-                    </div>
-
-                    <div class="field">
-                        <input type="email" id="email" placeholder=" " value="{{ user.email }}" disabled>
-                        <label for="email">Email</label>
                     </div>
 
                     <div class="field">
@@ -80,7 +75,7 @@
                     </div>
 
                     <div class="button-row">
-                        <button type="submit" class="btn primary">Save Changes</button>
+                        <button type="submit" class="btn primary" id="standardSave">Save Changes</button>
                         <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
                     </div>
                 </form>
@@ -228,6 +223,12 @@
             avatarPlaceholder.style.display = "block";
             avatarInput.value = "";
         }
+
+        // Saving modal
+        document.getElementById("standardSave").addEventListener("click", function () {
+            loadingBackdrop.classList.add("active");
+            loadingText.innerText = "Saving..."
+        });
     </script>
     {% endif %}
 </body>
