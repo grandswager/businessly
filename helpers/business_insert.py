@@ -75,7 +75,7 @@ def build_business_object(parsed_data: dict):
         province=parsed_data["province"]
     )
 
-    CATEGORY = "Service"
+    CATEGORY = input("Category: ").title()
 
     users_rated = random.randint(1, 20)
     ratings = [random.randint(1, 5) for _ in range(users_rated)]
