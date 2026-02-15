@@ -68,6 +68,23 @@ class db:
         )
 
     @staticmethod
+    def update_business_profile(user_uuid: str, updated_data: dict):
+        try:
+            users.update_one(
+                {"uuid": user_uuid},
+                {"$set": {"name": updated_data["name"]}}
+            )
+
+            business_profiles.update_one(
+                {"uuid": user_uuid},
+                {"$set": updated_data}
+            )
+
+            return True
+        except:
+            return ValueError("Something went wrong while updating your profile. Please try again later.")
+
+    @staticmethod
     def add_recent_business(user_uuid: str, business_uuid: str):
         user = users.find_one({"uuid": user_uuid}, {"recently_viewed": 1})
 

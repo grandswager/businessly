@@ -20,216 +20,331 @@
         {% endfor %}
     {% endwith %}
 
-    {% if user and user.type == "standard" %}
-    <div class="dashboard-wrapper">
-        <div class="dashboard-card">
-            <div class="dashboard-header">
-                <h2>Configure your Account</h2>
-            </div>
+    {% if current_user %}
+        <div class="dashboard-wrapper">
+            <div class="dashboard-card">
 
-            <div class="dashboard-grid">
-                <!-- LEFT PROFILE -->
-                <form id="avatarForm" action="/profile/avatar" method="POST" enctype="multipart/form-data">
-                    <div class="profile-upload">
-                        <label class="avatar-circle" for="avatarInput">
-                            <img id="avatarPreview" alt="User avatar preview" src="{{ user.picture }}">
-                            <div class="avatar-placeholder" id="avatarPlaceholder">
-                                Click to change profile image
-                            </div>
-                        </label>
+                <div class="dashboard-header">
+                    <h2>Configure your Account</h2>
+                </div>
 
-                        <input type="file" name="avatar" id="avatarInput" accept="image/png, image/jpeg" hidden/>
+                <div class="dashboard-grid">
+                    <!-- LEFT PROFILE -->
+                    <form id="avatarForm" action="/profile/avatar" method="POST" enctype="multipart/form-data">
+                        <div class="profile-upload">
 
-                        <small>JPG, PNG up to 5MB</small>
-                    </div>
-                </form>
+                            <label class="avatar-circle" for="avatarInput">
+                                <img id="avatarPreview" alt="User avatar preview" src="{{ current_user.picture }}">
 
-                <!-- RIGHT FORM -->
-                <form class="form" action="/dashboard/standard" method="POST">
-                    <div class="field">
-                        <input type="text" id="name" name="name" placeholder=" " value="{{ user.name }}">
-                        <label for="name">Name</label>
-                    </div>
+                                <div class="avatar-placeholder" id="avatarPlaceholder">
+                                    Click to change profile image
+                                </div>
+                            </label>
 
-                    <div class="field">
-                        <select disabled>
-                            <option value="standard" selected>Standard</option>
-                            <option value="business">Business</option>
-                        </select>
-                        <label for="accountSelect">Account Type</label>
-                    </div>
+                            <input type="file" name="avatar" id="avatarInput" accept="image/png, image/jpeg" hidden />
+                            <small>JPG, PNG up to 5MB</small>
 
-                    <div>
-                        <p class="caption" style="margin-bottom: 0.2rem;">Categories</p>
-
-                        <div class="category-grid">
-                            {% for cat in ["Food", "Service", "Shop", "Health"] %}
-                            <div class="category-chip {% if user.categories and cat in user.categories %}selected{% endif %}" onclick="toggleCategory(this)" data-value="{{ cat }}">
-                                {{ cat }}
-                            </div>
-                            {% endfor %}
                         </div>
+                    </form>
 
-                        <div class="selected-categories" id="selectedCategories"></div>
-                        <div id="hiddenInputs"></div>
-                    </div>
+                    <!-- RIGHT FORM -->
+                    {% if current_user.type == "standard" %}
 
-                    <div class="button-row">
-                        <button type="submit" class="btn primary" id="standardSave">Save Changes</button>
-                        <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
-                    </div>
-                </form>
+                        <form class="form" action="/dashboard/standard" method="POST">
+
+                            <div class="field">
+                                <input type="text" id="name" name="name" placeholder=" " value="{{ current_user.name }}" required>
+                                <label for="name">Name *</label>
+                            </div>
+
+                            <div class="field">
+                                <select disabled>
+                                    <option value="standard" selected>Standard</option>
+                                    <option value="business">Business</option>
+                                </select>
+                                <label for="accountSelect">Account Type *</label>
+                            </div>
+
+                            <div>
+                                <p class="caption" style="margin-bottom: 0.2rem;">Categories</p>
+
+                                <div class="category-grid">
+                                    {% for cat in ["Food", "Service", "Shop", "Health"] %}
+                                        <div class="category-chip {% if current_user.categories and cat in current_user.categories %}selected{% endif %}"
+                                             onclick="toggleCategory(this)"
+                                             data-value="{{ cat }}">
+                                            {{ cat }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="selected-categories" id="selectedCategories"></div>
+                                <div id="hiddenInputs"></div>
+                            </div>
+
+                            <p class="caption">* Indicates a required field.</p>
+
+                            <div class="button-row">
+                                <button type="submit" class="btn primary" id="saveBtn">Save Changes</button>
+                                <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
+                            </div>
+                        </form>
+                    {% elif current_user.type == "business" and business %}
+                        <form class="form" action="/dashboard/business" method="POST">
+                            <div class="field">
+                                <input type="text" id="businessName" name="name" placeholder=" " value="{{ business.name }}" required>
+                                <label for="businessName">Business Name *</label>
+                            </div>
+
+                            <div class="field">
+                                <select disabled>
+                                    <option value="standard">Standard</option>
+                                    <option value="business" selected>Business</option>
+                                </select>
+                                <label for="accountSelect">Account Type *</label>
+                            </div>
+
+                            <div class="field">
+                                <textarea id="description" name="description" placeholder=" " required>{{ business.description }}</textarea>
+                                <label for="description">Description *</label>
+                            </div>
+
+                            <div class="field">
+                                <select name="category" id="businessCategory" required>
+                                    {% for cat in ["Food", "Service", "Shop", "Health"] %}
+                                        <option value="{{ cat }}" {% if business.category == cat %}selected{% endif %}>
+                                            {{ cat }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="businessCategory">Category *</label>
+                            </div>
+
+                            <div class="field">
+                                <input type="text" id="address" name="address" placeholder=" " value="{{ business.address }}" required>
+                                <label for="address">Address *</label>
+                            </div>
+
+                            <div class="field">
+                                <input type="text" id="city" name="city" placeholder=" " value="{{ business.city }}" required>
+                                <label for="city">City *</label>
+                            </div>
+
+                            <div class="field">
+                                <select name="province" required>
+                                    <option value="" disabled selected>Select an option</option>
+                                    <option value="AB" {% if business.province == 'AB' %}selected{% endif %}>Alberta</option>
+                                    <option value="BC" {% if business.province == 'BC' %}selected{% endif %}>British Columbia</option>
+                                    <option value="MB" {% if business.province == 'MB' %}selected{% endif %}>Manitoba</option>
+                                    <option value="NB" {% if business.province == 'NB' %}selected{% endif %}>New Brunswick</option>
+                                    <option value="NL" {% if business.province == 'NL' %}selected{% endif %}>Newfoundland and Labrador</option>
+                                    <option value="NS" {% if business.province == 'NS' %}selected{% endif %}>Nova Scotia</option>
+                                    <option value="ON" {% if business.province == 'ON' %}selected{% endif %}>Ontario</option>
+                                    <option value="PE" {% if business.province == 'PE' %}selected{% endif %}>Prince Edward Island</option>
+                                    <option value="QC" {% if business.province == 'QC' %}selected{% endif %}>Quebec</option>
+                                    <option value="SK" {% if business.province == 'SK' %}selected{% endif %}>Saskatchewan</option>
+                                    <option value="YK" {% if business.province == 'YK' %}selected{% endif %}>Yukon</option>
+                                    <option value="NT" {% if business.province == 'NT' %}selected{% endif %}>Northwest Territories</option>
+                                    <option value="NU" {% if business.province == 'NU' %}selected{% endif %}>Nunavut</option>
+                                </select>
+                                <label>Province *</label>
+                            </div>
+
+                            <div class="field">
+                                <input type="text" id="postal" name="postal_code" placeholder=" " value="{{ business.postal_code }}" required>
+                                <label for="postal">Postal Code *</label>
+                            </div>
+
+                            <div class="field">
+                                <input type="text" id="phoneInput" name="phone" placeholder=" " value="{{ business.phone }}" required>
+                                <label for="phone">Phone *</label>
+                            </div>
+
+                            <div class="field">
+                                <input type="text" id="instagram" name="instagram" placeholder=" "
+                                       value="{{ business.socials.instagram if business.socials and business.socials.instagram }}">
+                                <label for="instagram">Instagram</label>
+                            </div>
+
+                            <div class="field">
+                                <input type="text" id="website" name="website" placeholder=" "
+                                       value="{{ business.socials.website if business.socials and business.socials.website }}">
+                                <label for="website">Website</label>
+                            </div>
+
+                            <p class="caption">* Indicates a required field.</p>
+
+                            <div class="button-row">
+                                <button type="submit" class="btn primary" id="saveBtn">Save Changes</button>
+                                <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
+                            </div>
+                        </form>
+
+                    {% else %}
+                        <p class="caption">No dashboard data available.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="loading-backdrop" id="loadingBackdrop">
-        <div class="loading-card">
-            <div class="loading-spinner"></div>
-            <p class="loading-text" id="loadingText">Loading...</p>
+        <!-- LOADING BACKDROP -->
+        <div class="loading-backdrop" id="loadingBackdrop">
+            <div class="loading-card">
+                <div class="loading-spinner"></div>
+                <p class="loading-text" id="loadingText">Loading...</p>
+            </div>
         </div>
-    </div>
 
-    <script>
-        // -------- Avatar Upload --------
-        const avatarInput = document.getElementById("avatarInput");
-        const avatarPreview = document.getElementById("avatarPreview");
-        const avatarPlaceholder = document.getElementById("avatarPlaceholder");
-        const avatarForm = document.getElementById("avatarForm");
-        const loadingBackdrop = document.getElementById("loadingBackdrop");
-        const loadingText = document.getElementById("loadingText")
+        <script>
+            // ---------------- LOADING ----------------
+            const loadingBackdrop = document.getElementById("loadingBackdrop");
+            const loadingText = document.getElementById("loadingText");
 
-        avatarInput.addEventListener("change", function () {
-            const file = this.files[0];
-            if (!file) return;
-
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const allowedTypes = ["image/jpeg", "image/png"];
-
-            if (file.size > maxSize) {
-                alert("File too large. Max size is 5MB.");
-                avatarInput.value = "";
-                return;
+            const saveBtn = document.getElementById("saveBtn");
+            if (saveBtn) {
+                saveBtn.addEventListener("click", function () {
+                    loadingBackdrop.classList.add("active");
+                    loadingText.innerText = "Saving...";
+                });
             }
 
-            if (!allowedTypes.includes(file.type)) {
-                alert("Only JPG and PNG images are allowed.");
-                avatarInput.value = "";
-                return;
-            }
+            // ---------------- AVATAR UPLOAD ----------------
+            const avatarInput = document.getElementById("avatarInput");
+            const avatarPreview = document.getElementById("avatarPreview");
+            const avatarPlaceholder = document.getElementById("avatarPlaceholder");
+            const avatarForm = document.getElementById("avatarForm");
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                avatarPreview.src = e.target.result;
-                avatarPreview.style.display = "block";
-                avatarPlaceholder.style.display = "none";
+            avatarInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (!file) return;
 
-                loadingBackdrop.classList.add("active");
-                loadingText.innerText = "Uploading profile picture..."
+                const maxSize = 5 * 1024 * 1024;
+                const allowedTypes = ["image/jpeg", "image/png"];
 
-                setTimeout(() => {
-                    avatarForm.submit();
-                }, 150);
-            };
-
-            reader.readAsDataURL(file);
-        });
-
-        // -------- Category Chips --------
-        const selected = new Set({{ user.categories | tojson | safe }});
-        renderSelected();
-
-        function toggleCategory(el) {
-            const value = el.dataset.value;
-
-            if (selected.has(value)) {
-                removeCategory(value);
-                return;
-            }
-
-            if (selected.size >= 4) return;
-
-            selected.add(value);
-            el.classList.add("selected");
-            renderSelected();
-        }
-
-        function removeCategory(value) {
-            selected.delete(value);
-
-            const chip = document.querySelector(
-                `.category-chip[data-value="${value}"]`
-            );
-            if (chip) chip.classList.remove("selected");
-
-            const selectedChip = document.querySelector(
-                `.selected-chip[data-value="${value}"]`
-            );
-
-            if (selectedChip) {
-                selectedChip.classList.add("removing");
-                setTimeout(() => selectedChip.remove(), 200);
-            }
-
-            renderSelected();
-        }
-
-        function renderSelected() {
-            const container = document.getElementById("selectedCategories");
-            const hidden = document.getElementById("hiddenInputs");
-
-            container.innerHTML = "";
-            hidden.innerHTML = "";
-
-            selected.forEach(cat => {
-                const chip = document.createElement("div");
-                chip.className = "selected-chip";
-                chip.dataset.value = cat;
-                chip.innerHTML = `
-                ${cat}
-                <span onclick="removeCategory('${cat}')">&times;</span>
-                `;
-                container.appendChild(chip);
-
-                hidden.innerHTML += `
-                <input type="hidden" name="categories" value="${cat}">
-                `;
-            });
-
-            updateMutedState();
-        }
-
-        function updateMutedState() {
-            const chips = document.querySelectorAll(".category-chip");
-
-            chips.forEach(chip => {
-                const value = chip.dataset.value;
-
-                if (!selected.has(value) && selected.size >= 4) {
-                    chip.classList.add("muted");
-                } else {
-                    chip.classList.remove("muted");
+                if (file.size > maxSize) {
+                    alert("File too large. Max size is 5MB.");
+                    avatarInput.value = "";
+                    return;
                 }
+
+                if (!allowedTypes.includes(file.type)) {
+                    alert("Only JPG and PNG images are allowed.");
+                    avatarInput.value = "";
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    avatarPreview.src = e.target.result;
+                    avatarPreview.style.display = "block";
+                    avatarPlaceholder.style.display = "none";
+
+                    loadingBackdrop.classList.add("active");
+                    loadingText.innerText = "Uploading profile picture...";
+
+                    setTimeout(() => {
+                        avatarForm.submit();
+                    }, 150);
+                };
+
+                reader.readAsDataURL(file);
             });
-        }
 
-        // -------- Reset --------
-        function resetForm() {
-            selected.clear();
-            document.querySelectorAll(".category-chip").forEach(c => c.classList.remove("selected"));
-            renderSelected();
+            // ---------------- STANDARD CATEGORY LOGIC ----------------
+            let selected = new Set();
 
-            avatarPreview.style.display = "none";
-            avatarPlaceholder.style.display = "block";
-            avatarInput.value = "";
-        }
+            {% if current_user.type == "standard" %}
+                selected = new Set({{ current_user.categories | tojson | safe }});
+                renderSelected();
+            {% endif %}
 
-        // Saving modal
-        document.getElementById("standardSave").addEventListener("click", function () {
-            loadingBackdrop.classList.add("active");
-            loadingText.innerText = "Saving..."
-        });
-    </script>
+            function toggleCategory(el) {
+                const value = el.dataset.value;
+
+                if (selected.has(value)) {
+                    removeCategory(value);
+                    return;
+                }
+
+                if (selected.size >= 4) return;
+
+                selected.add(value);
+                el.classList.add("selected");
+                renderSelected();
+            }
+
+            function removeCategory(value) {
+                selected.delete(value);
+
+                const chip = document.querySelector(`.category-chip[data-value="${value}"]`);
+                if (chip) chip.classList.remove("selected");
+
+                const selectedChip = document.querySelector(`.selected-chip[data-value="${value}"]`);
+                if (selectedChip) {
+                    selectedChip.classList.add("removing");
+                    setTimeout(() => selectedChip.remove(), 200);
+                }
+
+                renderSelected();
+            }
+
+            function renderSelected() {
+                const container = document.getElementById("selectedCategories");
+                const hidden = document.getElementById("hiddenInputs");
+
+                if (!container || !hidden) return;
+
+                container.innerHTML = "";
+                hidden.innerHTML = "";
+
+                selected.forEach(cat => {
+                    const chip = document.createElement("div");
+                    chip.className = "selected-chip";
+                    chip.dataset.value = cat;
+                    chip.innerHTML = `${cat} <span onclick="removeCategory('${cat}')">&times;</span>`;
+                    container.appendChild(chip);
+
+                    hidden.innerHTML += `<input type="hidden" name="categories" value="${cat}">`;
+                });
+
+                updateMutedState();
+            }
+
+            function updateMutedState() {
+                const chips = document.querySelectorAll(".category-chip");
+
+                chips.forEach(chip => {
+                    const value = chip.dataset.value;
+
+                    if (!selected.has(value) && selected.size >= 4) {
+                        chip.classList.add("muted");
+                    } else {
+                        chip.classList.remove("muted");
+                    }
+                });
+            }
+
+            // ---------------- RESET ----------------
+            function resetForm() {
+                window.location.reload();
+            }
+
+            const phoneInput = document.getElementById("phoneInput");
+
+            if (phoneInput) {
+                phoneInput.addEventListener("input", () => {
+                    let digits = phoneInput.value.replace(/\D/g, "").slice(0, 10);
+
+                    if (digits.length >= 6) {
+                        phoneInput.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+                    } else if (digits.length >= 3) {
+                        phoneInput.value = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+                    } else {
+                        phoneInput.value = digits;
+                    }
+                });
+            }
+        </script>
     {% endif %}
 </body>
 </html>

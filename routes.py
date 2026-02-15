@@ -360,7 +360,7 @@ def signup_redirect():
         session.pop("new_user")
         session["user_id"] = str(result.inserted_id)
 
-        if account_type == "business": return redirect(url_for("dashboard.html"))
+        if account_type == "business": return redirect(url_for("dashboard"))
 
         return redirect("/")
 
@@ -372,7 +372,15 @@ def dashboard():
         return redirect("/login")
 
     user = db.get_user_by_id(session["user_id"])
-    return render_template("dashboard.html", user=user)
+
+    if user["type"] == "standard":
+        return render_template("dashboard.html", user=user)
+    elif user["type"] == "business":
+        business_profile = db.get_business_info(user["uuid"])
+        return render_template("dashboard.html", user=user, business=business_profile)
+    else:
+        flash("Something went wrong.", "danger")
+        return render_template("dashboard.html", user=user)
 
 @app.route("/profile/avatar", methods=["POST"])
 def upload_avatar():
@@ -432,6 +440,112 @@ def modify_standard():
 
     except Exception:
         flash("Something went wrong updating your profile.", "danger")
+        return redirect("/dashboard")
+
+@app.route("/dashboard/business", methods=["POST"])
+def modify_business():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+    
+    business = db.get_business_info(user["uuid"])
+    if not business:
+        flash("Business profile not found.", "danger")
+        return redirect("/dashboard")
+
+    if user["type"] != "business":
+        flash("Invalid account type. (Error: 401)", "danger")
+        return redirect("/dashboard")
+    
+    if business.get("uuid") != user.get("uuid"):
+        flash("Unauthorized action detected.", "danger")
+        return redirect("/dashboard")
+
+    # -------- Get Form Data --------
+    name = (request.form.get("name") or "").strip()
+    description = (request.form.get("description") or "").strip()
+    category = (request.form.get("category") or "").strip()
+
+    address = (request.form.get("address") or "").strip()
+    city = (request.form.get("city") or "").strip()
+    province = (request.form.get("province") or "").strip()
+    postal_code = (request.form.get("postal_code") or "").replace(" ", "").upper().strip()
+
+    phone = (request.form.get("phone") or "").strip()
+    instagram = (request.form.get("instagram") or "").strip() or None
+    website = (request.form.get("website") or "").strip() or None
+
+    VALID_CATEGORIES = {"Food", "Service", "Shop", "Health"}
+
+    # -------- Validate Required Fields --------
+    required_fields = [name, description, category, address, city, province, postal_code, phone]
+    if not all(required_fields):
+        flash("Please complete all required business fields.", "danger")
+        return redirect("/dashboard")
+
+    # -------- Validate Category --------
+    if category not in VALID_CATEGORIES:
+        flash("Invalid category selection.", "danger")
+        return redirect("/dashboard")
+
+    # -------- Validate Postal Code --------
+    if len(postal_code) != 6:
+        flash("Postal code must be 6 characters.", "danger")
+        return redirect("/dashboard")
+
+    # -------- Geocode if Address Changed --------
+    try:
+        address_changed = (
+            address != business.get("address") or
+            city != business.get("city") or
+            province != business.get("province")
+        )
+
+        if address_changed:
+            lat, lng = GeocodingService.geocode(
+                address=address,
+                city=city,
+                province=province
+            )
+        else:
+            lng, lat = business["location"]["coordinates"]
+
+    except Exception:
+        flash("We couldn't locate your address. Please check and try again.", "danger")
+        return redirect("/dashboard")
+
+    # -------- Build Updated Business Object --------
+    updated_business = {
+        "name": name,
+        "category": category,
+        "address": address,
+        "city": city,
+        "province": province,
+        "postal_code": postal_code[:6],
+        "description": description,
+        "phone": phone,
+        "socials": {
+            "instagram": instagram,
+            "website": website
+        },
+        "location": {
+            "type": "Point",
+            "coordinates": [lng, lat]
+        }
+    }
+
+    try:
+        db.update_business_profile(user["uuid"], updated_business)
+
+        flash("Successfully updated business profile!", "success")
+        return redirect("/dashboard")
+
+    except ValueError as e:
+        flash(str(e), "danger")
+        return redirect("/dashboard")
+
+    except Exception:
+        flash("Something went wrong updating your business profile.", "danger")
         return redirect("/dashboard")
 
 @app.route("/logout")
