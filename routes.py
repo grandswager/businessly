@@ -439,6 +439,8 @@ def upload_business_image():
 
         new_url = ISS.upload_business_picture(user["uuid"], file_bytes)
 
+        print(new_url)
+
         db.update_business_image(user["uuid"], new_url)
 
         flash("Successfully updated business thumbnail!", "success")

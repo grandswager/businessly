@@ -85,7 +85,7 @@
                     {% elif current_user.type == "business" and business %}
                         <!-- BUSINESS THUMBNAIL UPLOAD -->
                         <div>
-                            <form id="businessImageForm" action="/business/image" method="POST" enctype="multipart/form-data">
+                            <form id="businessImageForm" action="/profile/business/image" method="POST" enctype="multipart/form-data">
                                 <label class="business-thumb" for="businessImageInput">
                                     <img id="businessImagePreview" src="{{ business.image_url }}" alt="Business Thumbnail">
                                     <div class="business-thumb-overlay">

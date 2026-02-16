@@ -62,7 +62,7 @@ class db:
     
     @staticmethod
     def update_business_image(business_uuid: str, picture_url: str):
-        return users.update_one(
+        return business_profiles.update_one(
             {"uuid": business_uuid},
             {"$set": {"image_url": picture_url}}
         )
