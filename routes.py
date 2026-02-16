@@ -71,6 +71,8 @@ def businesses(business_uuid):
     if user:
         db.add_recent_business(user["uuid"], business_uuid)
 
+    if not business: return render_template("businesses.html", business=business, uuid=business_uuid)
+
     page = request.args.get("page", 1, type=int)
     per_page = 10
     sort = request.args.get("sort", "newest")
