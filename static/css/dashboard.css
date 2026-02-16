@@ -306,6 +306,108 @@ small {
     to { transform: rotate(360deg); }
 }
 
+.coupon-section {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+    font-size: 1.6rem;
+    margin-bottom: 5px;
+}
+
+.section-subtitle {
+    opacity: 0.7;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.subsection-title {
+    margin-top: 35px;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.coupon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.coupon-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 18px;
+    border-radius: var(--radius-large);
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid var(--muted);
+}
+
+.coupon-card.expired .coupon-info {
+    opacity: 0.55;
+}
+
+.coupon-card.expired .coupon-badge,
+.coupon-card.expired .btn.danger {
+    opacity: 1 !important;
+}
+
+.coupon-info {
+    flex: 1;
+}
+
+.coupon-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.coupon-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.coupon-desc {
+    margin: 10px 0;
+    opacity: 0.85;
+    font-size: 0.95rem;
+}
+
+.coupon-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+.coupon-badge {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.coupon-badge.active {
+    background: rgba(0, 255, 140, 0.15);
+    color: rgba(0, 255, 140, 0.9);
+}
+
+.coupon-badge.expired {
+    background: rgba(255, 0, 0, 0.15);
+    color: rgba(255, 120, 120, 0.95);
+}
+
+.empty-text {
+    opacity: 0.7;
+    font-size: 0.95rem;
+    margin-top: 10px;
+}
+
 /* --------- Responsive --------- */
 @media (max-width: 860px) {
     .dashboard-grid {
@@ -320,5 +422,30 @@ small {
     #businessImageForm {
         align-items: flex-start;
         text-align: left;
+    }
+    
+    .coupon-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .coupon-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .coupon-meta {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .coupon-card form {
+        width: 100%;
+    }
+
+    .coupon-card .btn.danger {
+        width: 100%;
+        text-align: center;
     }
 }

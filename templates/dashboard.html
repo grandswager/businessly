@@ -191,6 +191,88 @@
                         <p class="caption">No dashboard data available.</p>
                     {% endif %}
                 </div>
+
+                {% if current_user.type == "business" and business %}
+                <!-- COUPON MANAGEMENT -->
+                <div class="coupon-section">
+                    <h2 class="section-title">Coupons</h2>
+                    <p class="section-subtitle">Create promotional coupons for your business.</p>
+
+                    <!-- CREATE COUPON FORM -->
+                    <form class="form" action="/dashboard/business/coupons/create" method="POST">
+                        <div class="field">
+                            <input type="text" id="couponName" name="name" placeholder=" " required>
+                            <label for="couponName">Coupon Name *</label>
+                        </div>
+
+                        <div class="field">
+                            <input type="text" id="couponCode" name="code" placeholder=" " required>
+                            <label for="couponCode">Coupon Code *</label>
+                        </div>
+
+                        <div class="field">
+                            <textarea id="couponDesc" name="description" placeholder=" " required></textarea>
+                            <label for="couponDesc">Description *</label>
+                        </div>
+
+                        <div class="field">
+                            <input type="number" id="couponDiscount" name="discount" placeholder=" " min="1" max="100" required>
+                            <label for="couponDiscount">Discount % *</label>
+                        </div>
+
+                        <div class="field">
+                            <input type="date" id="couponExpiry" name="expiry" placeholder=" " required>
+                            <label for="couponExpiry">Expiry Date *</label>
+                        </div>
+
+                        <p class="caption">* Indicates a required field.</p>
+
+                        <div class="button-row">
+                            <button type="submit" class="btn primary">Create Coupon</button>
+                        </div>
+                    </form>
+
+                    <!-- EXISTING COUPONS -->
+                    <div class="coupon-list">
+                        <h3 class="subsection-title">Your Coupons</h3>
+
+                        {% if business.coupons and business.coupons|length > 0 %}
+                            {% for coupon_id, coupon in business.coupons.items() %}
+                                {% set expired = coupon.expiry < now %}
+                                <div class="coupon-card {% if expired %}expired{% endif %}">
+                                    <div class="coupon-info">
+                                        <div class="coupon-header">
+                                            <h4>{{ coupon.name }}</h4>
+
+                                            {% if expired %}
+                                                <span class="coupon-badge expired">Expired</span>
+                                            {% else %}
+                                                <span class="coupon-badge active">Active</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <p class="coupon-desc">{{ coupon.description }}</p>
+
+                                        <div class="coupon-meta">
+                                            <span><strong>Code:</strong> {{ coupon.code }}</span>
+                                            <span><strong>Discount:</strong> {{ (coupon.discount * 100)|int }}%</span>
+                                            <span><strong>Expires:</strong> {{ coupon.expiry.strftime("%Y-%m-%d") }}</span>
+                                        </div>
+                                    </div>
+
+                                    <form class="deleteCouponForm" data-coupon-id="{{ coupon_id }}">
+                                        <button type="button" class="btn danger openDeleteModal">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-text">No coupons created yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -199,6 +281,26 @@
             <div class="loading-card">
                 <div class="loading-spinner"></div>
                 <p class="loading-text" id="loadingText">Loading...</p>
+            </div>
+        </div>
+
+        <div class="modal-backdrop" id="deleteCouponBackdrop">
+            <div class="modal-card">
+                <h2>Delete Coupon</h2>
+                <p class="caption">This action cannot be undone.</p><br>
+
+                <form id="deleteCouponConfirmForm" action="/dashboard/business/coupons/delete" method="POST">
+                    <input type="hidden" name="coupon_id" id="deleteCouponId">
+
+                    <div class="button-row">
+                        <button type="button" class="btn outline" id="cancelDeleteCoupon">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn danger">
+                            Delete
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -384,6 +486,7 @@
 
             const phoneInput = document.getElementById("phoneInput");
 
+            // ---------------- PHONE NUMBER FORMAT ----------------
             if (phoneInput) {
                 phoneInput.addEventListener("input", () => {
                     let digits = phoneInput.value.replace(/\D/g, "").slice(0, 10);
@@ -394,6 +497,36 @@
                         phoneInput.value = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
                     } else {
                         phoneInput.value = digits;
+                    }
+                });
+            }
+
+            // ---------------- DELETE COUPON ----------------
+            const deleteBackdrop = document.getElementById("deleteCouponBackdrop");
+            const deleteCouponIdInput = document.getElementById("deleteCouponId");
+            const cancelDeleteBtn = document.getElementById("cancelDeleteCoupon");
+
+            document.querySelectorAll(".openDeleteModal").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const couponId = this.closest(".deleteCouponForm").dataset.couponId;
+
+                    deleteCouponIdInput.value = couponId;
+                    deleteBackdrop.classList.add("active");
+                });
+            });
+
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener("click", function () {
+                    deleteBackdrop.classList.remove("active");
+                    deleteCouponIdInput.value = "";
+                });
+            }
+
+            if (deleteBackdrop) {
+                deleteBackdrop.addEventListener("click", function (e) {
+                    if (e.target === deleteBackdrop) {
+                        deleteBackdrop.classList.remove("active");
+                        deleteCouponIdInput.value = "";
                     }
                 });
             }

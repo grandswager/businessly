@@ -92,6 +92,22 @@ class db:
             return ValueError("Something went wrong while updating your profile. Please try again later.")
 
     @staticmethod
+    def create_coupon(business_uuid: str, coupon: dict):
+        coupon_id = str(uuid.uuid4())
+
+        return business_profiles.update_one(
+            {"uuid": business_uuid},
+            {"$set": {f"coupons.{coupon_id}": coupon}}
+        )
+    
+    @staticmethod
+    def delete_coupon(business_uuid: str, coupon_id: str):
+        return business_profiles.update_one(
+            {"uuid": business_uuid},
+            {"$unset": {f"coupons.{coupon_id}": ""}}
+        )
+
+    @staticmethod
     def add_recent_business(user_uuid: str, business_uuid: str):
         user = users.find_one({"uuid": user_uuid}, {"recently_viewed": 1})
 

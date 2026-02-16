@@ -106,7 +106,22 @@ def businesses(business_uuid):
                 "created": comment["created"]
             })
 
-    return render_template("businesses.html",business=business, uuid=business_uuid, comments=processed_comments, current_user=user, page=page, total_pages=total_pages)
+    now = datetime.now(timezone.utc)
+    active_coupons = {}
+
+    for key, coupon in business["coupons"].items():
+        expiry = coupon["expiry"]
+
+        expiry_ts = (expiry.replace(tzinfo=timezone.utc).timestamp() if expiry.tzinfo is None else expiry.timestamp())
+
+        now_ts = now.timestamp()
+
+        if expiry_ts >= now_ts:
+            active_coupons[key] = coupon
+
+    business["coupons"] = active_coupons
+
+    return render_template("businesses.html", business=business, now=datetime.now(timezone.utc), uuid=business_uuid, comments=processed_comments, current_user=user, page=page, total_pages=total_pages)
 
 @app.route("/businesses/<string:business_uuid>/bookmark", methods=["POST"])
 def businesses_bookmark(business_uuid):
@@ -377,7 +392,7 @@ def dashboard():
         return render_template("dashboard.html", user=user)
     elif user["type"] == "business":
         business_profile = db.get_business_info(user["uuid"])
-        return render_template("dashboard.html", user=user, business=business_profile)
+        return render_template("dashboard.html", user=user, business=business_profile, now=datetime.now())
     else:
         flash("Something went wrong.", "danger")
         return render_template("dashboard.html", user=user)
@@ -591,6 +606,108 @@ def modify_business():
     except Exception:
         flash("Something went wrong updating your business profile.", "danger")
         return redirect("/dashboard")
+
+@app.route("/dashboard/business/coupons/create", methods=["POST"])
+def create_coupon():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+
+    if user["type"] != "business":
+        flash("Unauthorized request.", "danger")
+        return redirect("/dashboard")
+
+    business = db.get_business_info(user["uuid"])
+    if not business:
+        flash("Business profile not found.", "danger")
+        return redirect("/dashboard")
+
+    if business.get("uuid") != user.get("uuid"):
+        flash("Unauthorized action detected.", "danger")
+        return redirect("/dashboard")
+
+    name = (request.form.get("name") or "").strip()
+    code = (request.form.get("code") or "").strip().upper()
+    description = (request.form.get("description") or "").strip()
+    discount_percent = request.form.get("discount")
+    expiry_date = request.form.get("expiry")
+
+    if not all([name, code, description, discount_percent, expiry_date]):
+        flash("Please fill in all required coupon fields.", "danger")
+        return redirect("/dashboard")
+
+    if not discount_percent.isdigit():
+        flash("Discount must be a number.", "danger")
+        return redirect("/dashboard")
+
+    discount_percent = int(discount_percent)
+
+    if discount_percent < 1 or discount_percent > 100:
+        flash("Discount must be between 1 and 100.", "danger")
+        return redirect("/dashboard")
+
+    discount = discount_percent / 100
+
+    try:
+        expiry_dt = datetime.strptime(expiry_date, "%Y-%m-%d")
+        expiry_dt = expiry_dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        flash("Invalid expiry date format.", "danger")
+        return redirect("/dashboard")
+
+    if expiry_dt < datetime.now(timezone.utc):
+        flash("Expiry date cannot be in the past.", "danger")
+        return redirect("/dashboard")
+
+    coupon = {
+        "name": name,
+        "code": code,
+        "description": description,
+        "discount": discount,
+        "expiry": expiry_dt
+    }
+
+    result = db.create_coupon(user["uuid"], coupon)
+
+    if not result:
+        flash("Failed to create coupon.", "danger")
+        return redirect("/dashboard")
+
+    flash("Coupon created successfully!", "success")
+    return redirect("/dashboard")
+
+@app.route("/dashboard/business/coupons/delete", methods=["POST"])
+def delete_coupon():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+
+    if user["type"] != "business":
+        flash("Unauthorized request.", "danger")
+        return redirect("/dashboard")
+
+    business = db.get_business_info(user["uuid"])
+    if not business:
+        flash("Business profile not found.", "danger")
+        return redirect("/dashboard")
+
+    if business.get("uuid") != user.get("uuid"):
+        flash("Unauthorized action detected.", "danger")
+        return redirect("/dashboard")
+
+    coupon_id = request.form.get("coupon_id")
+    if not coupon_id:
+        flash("Invalid coupon selected.", "danger")
+        return redirect("/dashboard")
+
+    result = db.delete_coupon(user["uuid"], coupon_id)
+
+    if not result:
+        flash("Failed to delete coupon.", "danger")
+        return redirect("/dashboard")
+
+    flash("Coupon deleted successfully.", "success")
+    return redirect("/dashboard")
 
 @app.route("/logout")
 def logout():
