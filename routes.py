@@ -410,6 +410,48 @@ def upload_avatar():
         flash("Something went wrong uploading your image.", "danger")
         return redirect("/dashboard")
 
+@app.route("/profile/business/image", methods=["POST"])
+def upload_business_image():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+
+    if user["type"] != "business":
+        flash("Unauthorized request.", "danger")
+        return redirect("/dashboard")
+
+    business = db.get_business_info(user["uuid"])
+    if not business:
+        flash("Business profile not found.", "danger")
+        return redirect("/dashboard")
+
+    if business.get("uuid") != user.get("uuid"):
+        flash("Unauthorized action detected.", "danger")
+        return redirect("/dashboard")
+
+    file = request.files.get("image")
+    if not file:
+        flash("No file uploaded.", "danger")
+        return redirect("/dashboard")
+
+    try:
+        file_bytes = file.read()
+
+        new_url = ISS.upload_business_picture(user["uuid"], file_bytes)
+
+        db.update_business_image(user["uuid"], new_url)
+
+        flash("Successfully updated business thumbnail!", "success")
+        return redirect("/dashboard")
+
+    except ValueError as e:
+        flash(str(e), "danger")
+        return redirect("/dashboard")
+
+    except Exception:
+        flash("Something went wrong uploading your business thumbnail.", "danger")
+        return redirect("/dashboard")
+
 @app.route("/dashboard/standard", methods=["POST"])
 def modify_standard():
     user = get_current_user()

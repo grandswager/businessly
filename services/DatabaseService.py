@@ -59,6 +59,13 @@ class db:
             {"uuid": user_uuid},
             {"$set": {"picture": picture_url}}
         )
+    
+    @staticmethod
+    def update_business_image(business_uuid: str, picture_url: str):
+        return users.update_one(
+            {"uuid": business_uuid},
+            {"$set": {"image_url": picture_url}}
+        )
 
     @staticmethod
     def update_standard_profile(user_uuid: str, name: str, categories: list):

@@ -41,6 +41,29 @@ class ImageStorageService:
         )
 
         return result["secure_url"]
+    
+    def upload_business_picture(self, business_uuid: str, file_bytes: bytes) -> str:
+        if not file_bytes:
+            raise ValueError("File is empty")
+
+        if len(file_bytes) > self.MAX_FILE_SIZE_BYTES:
+            raise ValueError("File too large (max 5MB)")
+
+        img_format = self._validate_image(file_bytes)
+
+        if not img_format: raise ValueError("Invalid file format.")
+
+        public_id = f"businesses/{business_uuid}"
+
+        result = cloudinary.uploader.upload(
+            file_bytes,
+            public_id=public_id,
+            overwrite=True,
+            resource_type="image",
+            invalidate=True
+        )
+
+        return result["secure_url"]
 
     def delete_profile_picture(self, user_uuid: str) -> bool:
         public_id = f"pfp/{user_uuid}"

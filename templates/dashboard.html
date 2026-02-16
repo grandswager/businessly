@@ -31,20 +31,13 @@
                 <div class="dashboard-grid">
                     <!-- LEFT PROFILE -->
                     <form id="avatarForm" action="/profile/avatar" method="POST" enctype="multipart/form-data">
-                        <div class="profile-upload">
+                        <label class="avatar-thumb" for="avatarInput">
+                            <img id="avatarPreview" alt="User Avatar" src="{{ current_user.picture }}">
+                            <div class="avatar-thumb-overlay">Change Profile Picture</div>
+                        </label>
 
-                            <label class="avatar-circle" for="avatarInput">
-                                <img id="avatarPreview" alt="User avatar preview" src="{{ current_user.picture }}">
-
-                                <div class="avatar-placeholder" id="avatarPlaceholder">
-                                    Click to change profile image
-                                </div>
-                            </label>
-
-                            <input type="file" name="avatar" id="avatarInput" accept="image/png, image/jpeg" hidden />
-                            <small>JPG, PNG up to 5MB</small>
-
-                        </div>
+                        <input type="file" name="avatar" id="avatarInput" accept="image/png, image/jpeg" hidden />
+                        <small>PNG or JPG • Max 5MB</small>
                     </form>
 
                     <!-- RIGHT FORM -->
@@ -90,96 +83,110 @@
                             </div>
                         </form>
                     {% elif current_user.type == "business" and business %}
-                        <form class="form" action="/dashboard/business" method="POST">
-                            <div class="field">
-                                <input type="text" id="businessName" name="name" placeholder=" " value="{{ business.name }}" required>
-                                <label for="businessName">Business Name *</label>
-                            </div>
+                        <!-- BUSINESS THUMBNAIL UPLOAD -->
+                        <div>
+                            <form id="businessImageForm" action="/business/image" method="POST" enctype="multipart/form-data">
+                                <label class="business-thumb" for="businessImageInput">
+                                    <img id="businessImagePreview" src="{{ business.image_url }}" alt="Business Thumbnail">
+                                    <div class="business-thumb-overlay">
+                                        Change Business Thumbnail
+                                    </div>
+                                </label>
 
-                            <div class="field">
-                                <select disabled>
-                                    <option value="standard">Standard</option>
-                                    <option value="business" selected>Business</option>
-                                </select>
-                                <label for="accountSelect">Account Type *</label>
-                            </div>
+                                <input type="file" name="image" id="businessImageInput" accept="image/png, image/jpeg" hidden>
+                                <small>PNG or JPG • Max 5MB</small>
+                            </form><br>
 
-                            <div class="field">
-                                <textarea id="description" name="description" placeholder=" " required>{{ business.description }}</textarea>
-                                <label for="description">Description *</label>
-                            </div>
+                            <form class="form" action="/dashboard/business" method="POST">
+                                <div class="field">
+                                    <input type="text" id="businessName" name="name" placeholder=" " value="{{ business.name }}" required>
+                                    <label for="businessName">Business Name *</label>
+                                </div>
 
-                            <div class="field">
-                                <select name="category" id="businessCategory" required>
-                                    {% for cat in ["Food", "Service", "Shop", "Health"] %}
-                                        <option value="{{ cat }}" {% if business.category == cat %}selected{% endif %}>
-                                            {{ cat }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                                <label for="businessCategory">Category *</label>
-                            </div>
+                                <div class="field">
+                                    <select disabled>
+                                        <option value="standard">Standard</option>
+                                        <option value="business" selected>Business</option>
+                                    </select>
+                                    <label for="accountSelect">Account Type *</label>
+                                </div>
 
-                            <div class="field">
-                                <input type="text" id="address" name="address" placeholder=" " value="{{ business.address }}" required>
-                                <label for="address">Address *</label>
-                            </div>
+                                <div class="field">
+                                    <textarea id="description" name="description" placeholder=" " required>{{ business.description }}</textarea>
+                                    <label for="description">Description *</label>
+                                </div>
 
-                            <div class="field">
-                                <input type="text" id="city" name="city" placeholder=" " value="{{ business.city }}" required>
-                                <label for="city">City *</label>
-                            </div>
+                                <div class="field">
+                                    <select name="category" id="businessCategory" required>
+                                        {% for cat in ["Food", "Service", "Shop", "Health"] %}
+                                            <option value="{{ cat }}" {% if business.category == cat %}selected{% endif %}>
+                                                {{ cat }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="businessCategory">Category *</label>
+                                </div>
 
-                            <div class="field">
-                                <select name="province" required>
-                                    <option value="" disabled selected>Select an option</option>
-                                    <option value="AB" {% if business.province == 'AB' %}selected{% endif %}>Alberta</option>
-                                    <option value="BC" {% if business.province == 'BC' %}selected{% endif %}>British Columbia</option>
-                                    <option value="MB" {% if business.province == 'MB' %}selected{% endif %}>Manitoba</option>
-                                    <option value="NB" {% if business.province == 'NB' %}selected{% endif %}>New Brunswick</option>
-                                    <option value="NL" {% if business.province == 'NL' %}selected{% endif %}>Newfoundland and Labrador</option>
-                                    <option value="NS" {% if business.province == 'NS' %}selected{% endif %}>Nova Scotia</option>
-                                    <option value="ON" {% if business.province == 'ON' %}selected{% endif %}>Ontario</option>
-                                    <option value="PE" {% if business.province == 'PE' %}selected{% endif %}>Prince Edward Island</option>
-                                    <option value="QC" {% if business.province == 'QC' %}selected{% endif %}>Quebec</option>
-                                    <option value="SK" {% if business.province == 'SK' %}selected{% endif %}>Saskatchewan</option>
-                                    <option value="YK" {% if business.province == 'YK' %}selected{% endif %}>Yukon</option>
-                                    <option value="NT" {% if business.province == 'NT' %}selected{% endif %}>Northwest Territories</option>
-                                    <option value="NU" {% if business.province == 'NU' %}selected{% endif %}>Nunavut</option>
-                                </select>
-                                <label>Province *</label>
-                            </div>
+                                <div class="field">
+                                    <input type="text" id="address" name="address" placeholder=" " value="{{ business.address }}" required>
+                                    <label for="address">Address *</label>
+                                </div>
 
-                            <div class="field">
-                                <input type="text" id="postal" name="postal_code" placeholder=" " value="{{ business.postal_code }}" required>
-                                <label for="postal">Postal Code *</label>
-                            </div>
+                                <div class="field">
+                                    <input type="text" id="city" name="city" placeholder=" " value="{{ business.city }}" required>
+                                    <label for="city">City *</label>
+                                </div>
 
-                            <div class="field">
-                                <input type="text" id="phoneInput" name="phone" placeholder=" " value="{{ business.phone }}" required>
-                                <label for="phone">Phone *</label>
-                            </div>
+                                <div class="field">
+                                    <select name="province" required>
+                                        <option value="" disabled selected>Select an option</option>
+                                        <option value="AB" {% if business.province == 'AB' %}selected{% endif %}>Alberta</option>
+                                        <option value="BC" {% if business.province == 'BC' %}selected{% endif %}>British Columbia</option>
+                                        <option value="MB" {% if business.province == 'MB' %}selected{% endif %}>Manitoba</option>
+                                        <option value="NB" {% if business.province == 'NB' %}selected{% endif %}>New Brunswick</option>
+                                        <option value="NL" {% if business.province == 'NL' %}selected{% endif %}>Newfoundland and Labrador</option>
+                                        <option value="NS" {% if business.province == 'NS' %}selected{% endif %}>Nova Scotia</option>
+                                        <option value="ON" {% if business.province == 'ON' %}selected{% endif %}>Ontario</option>
+                                        <option value="PE" {% if business.province == 'PE' %}selected{% endif %}>Prince Edward Island</option>
+                                        <option value="QC" {% if business.province == 'QC' %}selected{% endif %}>Quebec</option>
+                                        <option value="SK" {% if business.province == 'SK' %}selected{% endif %}>Saskatchewan</option>
+                                        <option value="YK" {% if business.province == 'YK' %}selected{% endif %}>Yukon</option>
+                                        <option value="NT" {% if business.province == 'NT' %}selected{% endif %}>Northwest Territories</option>
+                                        <option value="NU" {% if business.province == 'NU' %}selected{% endif %}>Nunavut</option>
+                                    </select>
+                                    <label>Province *</label>
+                                </div>
 
-                            <div class="field">
-                                <input type="text" id="instagram" name="instagram" placeholder=" "
-                                       value="{{ business.socials.instagram if business.socials and business.socials.instagram }}">
-                                <label for="instagram">Instagram</label>
-                            </div>
+                                <div class="field">
+                                    <input type="text" id="postal" name="postal_code" placeholder=" " value="{{ business.postal_code }}" required>
+                                    <label for="postal">Postal Code *</label>
+                                </div>
 
-                            <div class="field">
-                                <input type="text" id="website" name="website" placeholder=" "
-                                       value="{{ business.socials.website if business.socials and business.socials.website }}">
-                                <label for="website">Website</label>
-                            </div>
+                                <div class="field">
+                                    <input type="text" id="phoneInput" name="phone" placeholder=" " value="{{ business.phone }}" required>
+                                    <label for="phone">Phone *</label>
+                                </div>
 
-                            <p class="caption">* Indicates a required field.</p>
+                                <div class="field">
+                                    <input type="text" id="instagram" name="instagram" placeholder=" "
+                                        value="{{ business.socials.instagram if business.socials and business.socials.instagram }}">
+                                    <label for="instagram">Instagram</label>
+                                </div>
 
-                            <div class="button-row">
-                                <button type="submit" class="btn primary" id="saveBtn">Save Changes</button>
-                                <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
-                            </div>
-                        </form>
+                                <div class="field">
+                                    <input type="text" id="website" name="website" placeholder=" "
+                                        value="{{ business.socials.website if business.socials and business.socials.website }}">
+                                    <label for="website">Website</label>
+                                </div>
 
+                                <p class="caption">* Indicates a required field.</p>
+
+                                <div class="button-row">
+                                    <button type="submit" class="btn primary" id="saveBtn">Save Changes</button>
+                                    <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
+                                </div>
+                            </form>
+                        </div>
                     {% else %}
                         <p class="caption">No dashboard data available.</p>
                     {% endif %}
@@ -211,44 +218,90 @@
             // ---------------- AVATAR UPLOAD ----------------
             const avatarInput = document.getElementById("avatarInput");
             const avatarPreview = document.getElementById("avatarPreview");
-            const avatarPlaceholder = document.getElementById("avatarPlaceholder");
             const avatarForm = document.getElementById("avatarForm");
 
-            avatarInput.addEventListener("change", function () {
-                const file = this.files[0];
-                if (!file) return;
+            if (avatarInput) {
+                avatarInput.addEventListener("change", function () {
+                    const file = this.files[0];
+                    if (!file) return;
 
-                const maxSize = 5 * 1024 * 1024;
-                const allowedTypes = ["image/jpeg", "image/png"];
+                    const maxSize = 5 * 1024 * 1024;
+                    const allowedTypes = ["image/jpeg", "image/png"];
 
-                if (file.size > maxSize) {
-                    alert("File too large. Max size is 5MB.");
-                    avatarInput.value = "";
-                    return;
-                }
+                    if (file.size > maxSize) {
+                        alert("File too large. Max size is 5MB.");
+                        avatarInput.value = "";
+                        return;
+                    }
 
-                if (!allowedTypes.includes(file.type)) {
-                    alert("Only JPG and PNG images are allowed.");
-                    avatarInput.value = "";
-                    return;
-                }
+                    if (!allowedTypes.includes(file.type)) {
+                        alert("Only JPG and PNG images are allowed.");
+                        avatarInput.value = "";
+                        return;
+                    }
 
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    avatarPreview.src = e.target.result;
-                    avatarPreview.style.display = "block";
-                    avatarPlaceholder.style.display = "none";
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        avatarPreview.src = e.target.result;
 
-                    loadingBackdrop.classList.add("active");
-                    loadingText.innerText = "Uploading profile picture...";
+                        loadingBackdrop.classList.add("active");
+                        loadingText.innerText = "Uploading profile picture...";
 
-                    setTimeout(() => {
-                        avatarForm.submit();
-                    }, 150);
-                };
+                        setTimeout(() => {
+                            avatarForm.submit();
+                        }, 150);
+                    };
 
-                reader.readAsDataURL(file);
-            });
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // ---------------- BUSINESS IMAGE UPLOAD ----------------
+            const businessImageInput = document.getElementById("businessImageInput");
+            const businessImagePreview = document.getElementById("businessImagePreview");
+            const businessImagePlaceholder = document.getElementById("businessImagePlaceholder");
+            const businessImageForm = document.getElementById("businessImageForm");
+
+            if (businessImageInput) {
+                businessImageInput.addEventListener("change", function () {
+                    const file = this.files[0];
+                    if (!file) return;
+
+                    const maxSize = 5 * 1024 * 1024;
+                    const allowedTypes = ["image/jpeg", "image/png"];
+
+                    if (file.size > maxSize) {
+                        alert("File too large. Max size is 5MB.");
+                        businessImageInput.value = "";
+                        return;
+                    }
+
+                    if (!allowedTypes.includes(file.type)) {
+                        alert("Only JPG and PNG images are allowed.");
+                        businessImageInput.value = "";
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        businessImagePreview.src = e.target.result;
+                        businessImagePreview.style.display = "block";
+
+                        if (businessImagePlaceholder) {
+                            businessImagePlaceholder.style.display = "none";
+                        }
+
+                        loadingBackdrop.classList.add("active");
+                        loadingText.innerText = "Uploading business thumbnail...";
+
+                        setTimeout(() => {
+                            businessImageForm.submit();
+                        }, 150);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+            }
 
             // ---------------- STANDARD CATEGORY LOGIC ----------------
             let selected = new Set();
