@@ -152,16 +152,16 @@ The app will be accessible on your local network.
 * Post comments on businesses
 * Like/unlike comments
 * Sort comments by:
-** newest
-** most helpful (likes)
+    * newest
+    * most helpful (likes)
 
 ### Authentication Features
 * Login via Google OAuth
 * Session-based login system
 * Signup redirect flow after OAuth for new users
 * Account type seledction during signup:
-** Standard
-** Business
+    * Standard
+    * Business
 
 ### Standard User Profile Features
 * Update profile picture
@@ -170,28 +170,28 @@ The app will be accessible on your local network.
 ### Business User Features
 * Create a business profile during signup
 * Update business profile details:
-** name
-** category
-** address
-** postal code
-** phone
-** description
-** socials (instagram, website)
+    * name
+    * category
+    * address
+    * postal code
+    * phone
+    * description
+    * socials (instagram, website)
 * Upload / update business thumbnail image
 
 ### Image Upload Features
 * Upload user avatar image
 * Upload business thumbnail image
 * Validation:
-** max 5MB
-** only JPEG/PNG allowed
+    * max 5MB
+    * only JPEG/PNG allowed
 * Uploaded images stored via Cloudinary CDN
 
 ### Data Integrity / Moderation
 * Profanity filtering (better-profanity)
 * Comment spam prevention:
-** rate limiting
-** duplicate detection
+    * rate limiting
+    * duplicate detection
 
 ---
 
@@ -279,12 +279,12 @@ Responsible for ranking and filtering businesses.
 Uses:
 * MongoDB $geoNear query
 * Optional filtering:
-** category match
-** search query regex
+    * category match
+    * search query regex
 * Post-processing:
-** computes rating
-** computes distance (Haversine formula)
-** assigns score
+    * computes rating
+    * computes distance (Haversine formula)
+    * assigns score
 * Sorting by score descending
 * Scoring formula:
 ```python
@@ -299,16 +299,16 @@ Businessly includes multiple security measures:
 * Google OAuth secure login
 * Google reCAPTCHA to prevent bot abuse
 * Input validation on:
-** ratings
-** comment length
-** form fields
-** categories
+    * ratings
+    * comment length
+    * form fields
+    * categories
 * Business profile modification checks:
-** only owner can modify their business profile
+    * only owner can modify their business profile
 * Profanity filtering via better-profanity
 * Comment spam protection:
-** duplicate detection
-** rate limiting logic
+    * duplicate detection
+    * rate limiting logic
 
 ---
 
