@@ -11,6 +11,9 @@
             {% if current_user %}
             <a href="{{ url_for('dashboard') }}" class="{% if current_path.startswith('/dashboard') %}active{% endif %}">Dashboard</a>
             {% endif %}
+            {% if current_user.type == "business" %}
+            <a href="/businesses/{{ current_user.uuid }}" class="{% if current_path.startswith('/businesses/' + current_user.uuid) %}active{% endif %}">Your Business</a>
+            {% endif %}
         </nav>
 
         {% if current_user %}
