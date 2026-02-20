@@ -1,6 +1,6 @@
 import math
 from typing import Optional, List
-from services.DatabaseService import business_profiles
+from services.DatabaseService import business_profiles, sponsored_businesses
 
 class RecommendationService:
     """
@@ -116,3 +116,36 @@ class RecommendationService:
 
         # Great-circle distance
         return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    @staticmethod
+    def recommend_sponsored_business(
+        user_lat: float,
+        user_lng: float,
+        max_distance_km: float = 20
+    ) -> Optional[dict]:
+        """
+        Returns a random sponsored business within the given distance (default 20km).
+
+        Steps:
+        1. Find sponsored businesses within max_distance_km
+        2. Randomly pick one
+        3. Return None if no sponsored businesses found
+        """
+
+        pipeline = [
+            {
+                "$geoNear": {
+                    "near": {
+                        "type": "Point",
+                        "coordinates": [user_lng, user_lat]
+                    },
+                    "distanceField": "distance_m",
+                    "maxDistance": int(max_distance_km * 1000),
+                    "spherical": True
+                }
+            },
+            {"$sample": {"size": 1}}
+        ]
+
+        result = list(sponsored_businesses.aggregate(pipeline))
+        return result[0] if result else None

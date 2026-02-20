@@ -43,6 +43,15 @@ def index():
     if max_distance >= 20:
         max_distance = 20020
 
+    sponsor = RecommendationService.recommend_sponsored_business(user_lat=user_lat, user_lng=user_lng)
+
+    if sponsor:
+        sponsored_business = db.get_business_info(sponsor["uuid"])
+        per_page = 11
+        offset = (page - 1) * per_page
+    else:
+        sponsored_business = None
+
     businesses, total = RecommendationService.recommend(user_lat=user_lat, user_lng=user_lng, user_query=query, max_distance_km=max_distance, min_rating=min_rating, categories=categories, limit=per_page, offset=offset)
 
     total_pages = math.ceil(total / per_page)
@@ -61,7 +70,7 @@ def index():
     else:
         recent_businesses = None
 
-    return render_template("index.html", businesses=businesses, address=user_location, bookmarks=bookmarked_businesses, recently_viewed=recent_businesses, page=page, total_pages=total_pages)
+    return render_template("index.html", businesses=businesses, sponsored_business=sponsored_business, address=user_location, bookmarks=bookmarked_businesses, recently_viewed=recent_businesses, page=page, total_pages=total_pages)
 
 @app.route("/businesses/<string:business_uuid>")
 def businesses(business_uuid):

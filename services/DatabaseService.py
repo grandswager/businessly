@@ -12,10 +12,11 @@ client = MongoClient(os.getenv("MONGO_URI"))
 db_client = client["db"]
 users = db_client["users"]
 business_profiles = db_client["business_profiles"]
+sponsored_businesses = db_client["sponsored_businesses"]
 
 users.create_index("auth.google", unique=True, sparse=True)
-
 business_profiles.create_index([("location", "2dsphere")])
+sponsored_businesses.create_index([("location", "2dsphere")])
 
 class db:
     """

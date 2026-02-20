@@ -108,6 +108,24 @@
 
                 <div class="explore-grid">
                     {% if businesses %}
+                        {% if sponsored_business %}
+                            <a href="/businesses/{{ sponsored_business.uuid }}" style="text-decoration: none;"><article class="business-card">
+                                <img src="{{ sponsored_business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ sponsored_business.name }} image">
+
+                                <div class="business-content">
+                                    <div title="Sponsored Businesses are paid for by Businesses."><span class="badge muted"><i class="fa-regular fa-circle-question"></i> Sponsored</span>
+
+                                    <h3 class="business-name">
+                                        {{ sponsored_business.name }}
+                                    </h3>
+
+                                    <p class="business-desc">
+                                        {{ sponsored_business.description | truncate(120) }}
+                                    </p>
+                                </div>
+                            </article></a>
+                        {% endif %}
+
                         {% for business in businesses %}
                             <a href="/businesses/{{ business.uuid }}" style="text-decoration: none;"><article class="business-card">
                                 <img src="{{ business.image_url or 'https://core.myblueprint.ca/Client/Images/EmptyState/icon_desertEmpty.svg' }}" alt="{{ business.name }} image">
